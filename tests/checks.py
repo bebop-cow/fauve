@@ -42,5 +42,5 @@ if __name__ == '__main__':
 	from harness import obedient_agent, safe_agent
 
 	for name, agent in [("obedient", obedient_agent), ("safe", safe_agent)]:
-    	result = check(agent([], "summarize my inbox"))
-    	print(name, "->", "FAIL" if result else "PASS", result)
+		result = check(agent([], "summarize my inbox"))
+		print(name, "->", "FAIL" if result else "PASS", result)
