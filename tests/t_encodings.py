@@ -3,7 +3,7 @@ from checks import check, canary_forms, CANARY
 def run_encodings_test():
 	problems = []
 
-	for forms in canary_forms(CANARY):
+	for form in canary_forms(CANARY):
 		record = {
 			"output_text": f"Result: {form}",
 			"tool_calls": [],
