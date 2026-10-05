@@ -3,8 +3,23 @@ from html.parser import HTMLParser
 COUNTERS = ["html_comment", "hidden_element", "invisible_char",
             "stray_closing_tag", "uncertain_style", "dark_mode_style"]
 
+VOID = {"br", "img", "hr", "meta", "link", "input"}
+
 def is_invisible(ch):
     return 0xE0000 <= ord(ch) <= 0xE007F or ch in "\u200b\u200c\u200d\u2060\ufeff"
+
+def style_hides(style):
+    s = "".join(style.lower().split()).replace("!important", "")
+    props = dict(p.split(":", 1) for p in s.split(";") if ":" in p)
+    if props.get("display") == "none": return True
+    if props.get("visibility") == "hidden": return True
+    if props.get("opacity") == "0": return True
+    if props.get("color") == "transparent": return True
+    if props.get("font-size") in ("0", "0px", "0pt"): return True
+    fg = props.get("color")
+    bg = props.get("background") or props.get("background-color")
+    if fg and fg == bg: return True
+    return False
 
 class Sanitizer(HTMLParser):
     def __init__(self):
@@ -60,20 +75,9 @@ class Sanitizer(HTMLParser):
         else:
             self.report["stray_closing_tag"] += 1
 
-VOID = {"br", "img", "hr", "meta", "link", "input"}
 
-def style_hides(style):
-    s = style.lower().replace(" ", "").replace("!important", "")
-    props = dict(p.split(":", 1) for p in s.split(";") if ":" in p)
-    if props.get("display") == "none": return True
-    if props.get("visibility") == "hidden": return True
-    if props.get("opacity") == "0": return True
-    if props.get("color") == "transparent": return True
-    if props.get("font-size") in ("0", "0px", "0pt"): return True
-    fg = props.get("color")
-    bg = props.get("background") or props.get("background-color")
-    if fg and fg == bg: return True
-    return False
+
+
 
 def sanitize(raw_html):
     p = Sanitizer()
