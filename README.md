@@ -12,8 +12,18 @@ for you, but never sends, pays, or stores passwords.
 - An audit command lists exactly what the agent has stored.
 
 ## Status
-Design phase. See [THREATMODEL.md](THREATMODEL.md) for the threat model.
-Feedback and attack ideas are welcome via issues.
+
+v0.1, design plus tested building blocks. Not a working agent yet.
+
+Implemented and tested:
+- Threat model (THREATMODEL.md)
+- Test harness with stub agents (T1: injection, encodings, blobs)
+- HTML sanitizer for hidden content (T2, T2B)
+
+Planned: tool layer, sandbox, OAuth broker, local model, retention
+and erase commands (T3 to T12).
+
+Run all tests: see tests/ (python3 tests/<name>.py from the repo root).
 
 ## License
 See [LICENSE](LICENSE).
