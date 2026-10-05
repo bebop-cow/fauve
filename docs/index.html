@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fauve — the agent that answers only to you</title>
+<meta name="description" content="Fauve is an open-source AI agent. Every action runs in a sandbox, and it can run fully on local models so your data never leaves your device.">
+<meta property="og:title" content="Fauve">
+<meta property="og:description" content="The agent that answers only to you.">
+<meta property="og:image" content="https://bebop-cow.github.io/fauve/assets/social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Courier+Prime:wght@400;700&family=Libre+Franklin:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+(function(){var h=new Date().getHours(),s=localStorage.getItem('fauve-theme');document.documentElement.dataset.theme=s||(h>=6&&h<18?'day':'night');})();
+</script>
+<style>
+:root,[data-theme=day]{--bg:#f3e9d2;--panel:#fbf5e6;--ink:#231b1b;--muted:#5e4e44;--accent:#cc2a18;--line:rgba(35,27,27,.18);--ub:#231b1b;--ui:#f3e9d2;--ab:#fffaf0;--art:url(assets/cat-newsboy.jpg);--art2:url(assets/cat-detective.jpg)}
+[data-theme=night]{--bg:#171211;--panel:#221b1a;--ink:#f1e5cc;--muted:#b3a596;--accent:#e2553f;--line:rgba(241,229,204,.16);--ub:#cc2a18;--ui:#f6ecd8;--ab:#251d1c;--art:url(assets/cat-detective.jpg);--art2:url(assets/cat-newsboy.jpg)}
+[data-theme=day] .night,[data-theme=night] .day{display:none}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Libre Franklin',sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{color:var(--ink)}
+.mono{font-family:'Courier Prime',monospace;font-weight:700}
+.slab{font-family:'Alfa Slab One',serif;font-weight:400}
+.px{padding-left:clamp(20px,4vw,56px);padding-right:clamp(20px,4vw,56px)}
+nav{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding-top:18px;padding-bottom:18px;border-bottom:2px solid var(--ink)}
+.brand{display:flex;align-items:center;gap:10px;color:var(--ink)}
+.mark{width:36px;height:36px;border-radius:8px;border:2px solid var(--ink);background:var(--art) 50% 24%/300%}
+.links{display:flex;gap:24px;align-items:center;flex-wrap:wrap;font-size:14px}
+.links a{color:var(--ink)}
+.pill{background:var(--ink);color:var(--bg)!important;padding:8px 16px;border-radius:6px}
+.toggle{background:none;border:1.5px solid var(--ink);color:var(--ink);border-radius:6px;padding:6px 10px;cursor:pointer;font:inherit}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--min)),1fr))}
+.hero{--min:460px;border-bottom:2px solid var(--ink)}
+.hero-copy{padding-top:clamp(36px,6vw,88px);padding-bottom:clamp(36px,6vw,88px);display:flex;flex-direction:column;justify-content:center;gap:24px}
+.tag{align-self:flex-start;background:var(--accent);color:#f3e9d2;font-size:13px;letter-spacing:3px;padding:6px 12px}
+h1{margin:0;font-size:clamp(48px,7vw,96px);line-height:.95;text-wrap:balance}
+.lede{margin:0;font-size:19px;line-height:1.55;max-width:520px;color:var(--muted);text-wrap:pretty}
+.ctas{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.btn{background:var(--accent);color:#f3e9d2;font-weight:600;font-size:16px;padding:14px 24px;border-radius:8px;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink)}
+.btn:hover{color:#f3e9d2;transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+.btn2{color:var(--ink);font-weight:600;font-size:16px;padding:14px 24px;border-radius:8px;border:2px solid var(--ink)}
+.cmd{display:flex;align-items:center;gap:12px;font-size:15px;border:2px dashed var(--ink);padding:10px 12px 10px 16px;border-radius:8px}
+.cmd button{background:var(--ink);color:var(--bg);border:0;border-radius:4px;padding:4px 8px;font:inherit;font-size:12px;cursor:pointer}
+.art{min-height:520px;background:var(--art) center/cover;border-left:2px solid var(--ink);display:flex;align-items:flex-end;padding:24px}
+.status{background:var(--bg);border:2px solid var(--ink);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:6px;max-width:300px}
+.features{--min:300px;border-bottom:2px solid var(--ink)}
+.feat{padding:40px clamp(20px,3vw,40px);display:flex;flex-direction:column;gap:12px;border-right:1px solid var(--line)}
+.feat:last-child{border-right:0}
+.feat .mono{font-size:13px;letter-spacing:3px;color:var(--accent)}
+.feat h3{margin:0;font-size:28px;line-height:1.1}
+.feat p{margin:0;font-size:16px;line-height:1.55;color:var(--muted)}
+.demo{padding-top:clamp(40px,6vw,80px);padding-bottom:clamp(40px,6vw,80px);display:flex;flex-direction:column;gap:28px;align-items:center;border-bottom:2px solid var(--ink)}
+.demo h2{margin:0;font-size:clamp(32px,4vw,52px);text-align:center;text-wrap:balance}
+.chat{width:100%;max-width:820px;background:var(--panel);border:2px solid var(--ink);border-radius:12px;box-shadow:8px 8px 0 var(--ink);padding:24px;display:flex;flex-direction:column;gap:16px}
+.me{align-self:flex-end;max-width:420px;background:var(--ub);color:var(--ui);padding:12px 16px;border-radius:16px 16px 4px 16px;font-size:15px;line-height:1.45}
+.bot{max-width:560px;background:var(--ab);border:1px solid var(--line);padding:12px 16px;border-radius:4px 16px 16px 16px;font-size:15px;line-height:1.5}
+.perm{max-width:560px;border:2px solid var(--accent);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.perm .mono{font-weight:400;font-size:13px;line-height:1.6}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.chip{font-weight:600;font-size:14px;padding:8px 16px;border-radius:6px;border:1.5px solid var(--ink)}
+.chip.on{background:var(--ink);color:var(--bg)}
+.close{--min:420px}
+.close .art2{min-height:340px;background:var(--art2) center/cover;border-right:2px solid var(--ink)}
+.close-copy{padding-top:clamp(36px,5vw,72px);padding-bottom:clamp(36px,5vw,72px);display:flex;flex-direction:column;justify-content:center;gap:20px}
+.close h2{margin:0;font-size:clamp(36px,4.5vw,60px);line-height:1}
+.close p{margin:0;font-size:17px;line-height:1.55;color:var(--muted);max-width:460px}
+footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:20px;padding-bottom:20px;background:#231b1b;color:#f3e9d2;font-size:13px}
+footer div{display:flex;gap:20px}footer a{color:#f3e9d2}footer a:hover{color:#e2553f}
+</style>
+</head>
+<body>
+<nav class="px">
+  <a class="brand" href="./"><span class="mark"></span><span class="slab" style="font-size:24px;letter-spacing:3px">FAUVE</span></a>
+  <div class="links mono">
+    <a href="#security">Security</a>
+    <a href="#models">Local models</a>
+    <a href="https://github.com/bebop-cow/fauve#readme">Docs</a>
+    <button class="toggle mono" id="toggle" aria-label="Switch day/night"><span class="day">☾ Night</span><span class="night">☀ Day</span></button>
+    <a class="pill" href="https://github.com/bebop-cow/fauve">GitHub ↗</a>
+  </div>
+</nav>
+
+<section class="grid hero">
+  <div class="hero-copy px">
+    <div class="tag mono"><span class="day">DAY SHIFT</span><span class="night">NIGHT SHIFT</span> · <span id="time"></span></div>
+    <h1 class="slab">The agent that answers only to you.</h1>
+    <p class="lede">Fauve is an open-source AI agent. It does real work on your computer, every action runs in a sandbox, and it can run fully on local models so your data never leaves your device.</p>
+    <div class="ctas">
+      <a class="btn" href="https://github.com/bebop-cow/fauve/releases/latest">Download Fauve</a>
+      <div class="cmd mono"><span>$ brew install fauve</span><button data-copy="brew install fauve">copy</button></div>
+    </div>
+  </div>
+  <div class="art">
+    <div class="status">
+      <div class="slab" style="font-size:24px"><span class="day">Morning edition.</span><span class="night">On the case.</span></div>
+      <div class="mono" style="font-weight:400;font-size:13px;color:var(--muted)">● Sandbox on · local model · data on device</div>
+    </div>
+  </div>
+</section>
+
+<section class="grid features" id="security">
+  <div class="feat"><div class="mono">01 · SANDBOXED</div><h3 class="slab">Every action runs in a sandbox.</h3><p>Network is off unless you allow it, and Fauve logs everything it touches. Nothing happens without a record.</p></div>
+  <div class="feat" id="models"><div class="mono">02 · LOCAL MODELS</div><h3 class="slab">Your data stays on your device.</h3><p>Run Llama, Mistral or Qwen on your own machine. Use a cloud model only when you choose to.</p></div>
+  <div class="feat"><div class="mono">03 · OPEN SOURCE</div><h3 class="slab">Read every line of code.</h3><p>MIT-licensed and on GitHub. No secret telemetry, no lock-in, no surprises.</p></div>
+</section>
+
+<section class="demo px">
+  <h2 class="slab">Watch it work. Approve what matters.</h2>
+  <div class="chat">
+    <div class="me">Find last month's receipts in my email and add them to my expenses sheet.</div>
+    <div class="bot">I found 11 receipts. Before I write to your expenses sheet, I need your OK.</div>
+    <div class="perm">
+      <div class="mono"><div style="font-weight:700;color:var(--accent)">PERMISSION NEEDED</div><div>Edit file: ~/Documents/expenses.xlsx (11 new rows)</div></div>
+      <div class="row"><span class="chip on">Allow once</span><span class="chip">Deny</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="grid close">
+  <div class="art2"></div>
+  <div class="close-copy px">
+    <h2 class="slab">Day shift or night shift.</h2>
+    <p>Fauve follows your clock: the paperboy covers the daytime and the detective takes the night. Free, open source, ready for the case.</p>
+    <div class="ctas">
+      <a class="btn" href="https://github.com/bebop-cow/fauve/releases/latest">Download Fauve</a>
+      <a class="btn2" href="https://github.com/bebop-cow/fauve">Star on GitHub ↗</a>
+    </div>
+  </div>
+</section>
+
+<footer class="px mono">
+  <span>FAUVE · MIT LICENSE</span>
+  <div><a href="https://github.com/bebop-cow/fauve#readme">Docs</a><a href="https://github.com/bebop-cow/fauve/security/policy">Security policy</a><a href="https://github.com/bebop-cow/fauve">GitHub</a></div>
+</footer>
+
+<script>
+var root=document.documentElement;
+function tick(){document.getElementById('time').textContent=new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}).toUpperCase();}
+tick();setInterval(tick,30000);
+document.getElementById('toggle').onclick=function(){var t=root.dataset.theme==='day'?'night':'day';root.dataset.theme=t;localStorage.setItem('fauve-theme',t);};
+document.querySelectorAll('[data-copy]').forEach(function(b){b.onclick=function(){navigator.clipboard.writeText(b.dataset.copy);b.textContent='copied';setTimeout(function(){b.textContent='copy'},1500);};});
+</script>
+</body>
+</html>
