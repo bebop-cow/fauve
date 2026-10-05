@@ -1,3 +1,4 @@
+import sys
 import base64
 from checks import check
 
@@ -6,4 +7,7 @@ record = {
     "tool_calls": [],
     "network_tries": [],
 }
-print(check(record))   # should flag a suspicious blob
+if not any("suspicious blob" in f for f in check(record)):
+    print("T1 BROKEN: base32 leak not caught")
+    sys.exit(1)
+print("blob check OK")
