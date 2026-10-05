@@ -11,19 +11,19 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Courier+Prime:wght@400;700&family=Libre+Franklin:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400&family=Courier+Prime:wght@400;700&family=Libre+Franklin:wght@400;500;600&display=swap" rel="stylesheet">
 <script>
 (function(){var h=new Date().getHours(),s=localStorage.getItem('fauve-theme');document.documentElement.dataset.theme=s||(h>=6&&h<18?'day':'night');})();
 </script>
 <style>
-:root,[data-theme=day]{--bg:#f3e9d2;--panel:#fbf5e6;--ink:#231b1b;--muted:#5e4e44;--accent:#cc2a18;--line:rgba(35,27,27,.18);--ub:#231b1b;--ui:#f3e9d2;--ab:#fffaf0;--art:url(assets/cat-newsboy.jpg);--art2:url(assets/cat-detective.jpg)}
-[data-theme=night]{--bg:#171211;--panel:#221b1a;--ink:#f1e5cc;--muted:#b3a596;--accent:#e2553f;--line:rgba(241,229,204,.16);--ub:#cc2a18;--ui:#f6ecd8;--ab:#251d1c;--art:url(assets/cat-detective.jpg);--art2:url(assets/cat-newsboy.jpg)}
+:root,[data-theme=day]{--bg:#f3e9d2;--panel:#fbf5e6;--ink:#231b1b;--muted:#5e4e44;--accent:#c99a1e;--on:#231b1b;--line:rgba(35,27,27,.18);--ub:#231b1b;--ui:#f3e9d2;--ab:#fffaf0;--art:url(assets/cat-newsboy.jpg);--art2:url(assets/cat-detective.jpg)}
+[data-theme=night]{--bg:#171211;--panel:#221b1a;--ink:#f1e5cc;--muted:#b3a596;--accent:#ddb13c;--on:#231b1b;--line:rgba(241,229,204,.16);--ub:#f1e5cc;--ui:#171211;--ab:#251d1c;--art:url(assets/cat-detective.jpg);--art2:url(assets/cat-newsboy.jpg)}
 [data-theme=day] .night,[data-theme=night] .day{display:none}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:'Libre Franklin',sans-serif}
 a{color:var(--accent);text-decoration:none}a:hover{color:var(--ink)}
 .mono{font-family:'Courier Prime',monospace;font-weight:700}
-.slab{font-family:'Alfa Slab One',serif;font-weight:400}
+.slab{font-family:'Josefin Sans',sans-serif;font-weight:300}
 .px{padding-left:clamp(20px,4vw,56px);padding-right:clamp(20px,4vw,56px)}
 nav{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding-top:18px;padding-bottom:18px;border-bottom:2px solid var(--ink)}
 .brand{display:flex;align-items:center;gap:10px;color:var(--ink)}
@@ -35,12 +35,12 @@ nav{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--min)),1fr))}
 .hero{--min:460px;border-bottom:2px solid var(--ink)}
 .hero-copy{padding-top:clamp(36px,6vw,88px);padding-bottom:clamp(36px,6vw,88px);display:flex;flex-direction:column;justify-content:center;gap:24px}
-.tag{align-self:flex-start;background:var(--accent);color:#f3e9d2;font-size:13px;letter-spacing:3px;padding:6px 12px}
+.tag{font-weight:400!important;align-self:flex-start;background:var(--accent);color:var(--on);font-size:13px;letter-spacing:3px;padding:6px 12px}
 h1{margin:0;font-size:clamp(48px,7vw,96px);line-height:.95;text-wrap:balance}
 .lede{margin:0;font-size:19px;line-height:1.55;max-width:520px;color:var(--muted);text-wrap:pretty}
 .ctas{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-.btn{background:var(--accent);color:#f3e9d2;font-weight:600;font-size:16px;padding:14px 24px;border-radius:8px;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink)}
-.btn:hover{color:#f3e9d2;transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+.btn{background:var(--accent);color:var(--on);font-weight:600;font-size:16px;padding:14px 24px;border-radius:8px;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink)}
+.btn:hover{color:var(--on);transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
 .btn2{color:var(--ink);font-weight:600;font-size:16px;padding:14px 24px;border-radius:8px;border:2px solid var(--ink)}
 .cmd{display:flex;align-items:center;gap:12px;font-size:15px;border:2px dashed var(--ink);padding:10px 12px 10px 16px;border-radius:8px}
 .cmd button{background:var(--ink);color:var(--bg);border:0;border-radius:4px;padding:4px 8px;font:inherit;font-size:12px;cursor:pointer}
@@ -49,7 +49,7 @@ h1{margin:0;font-size:clamp(48px,7vw,96px);line-height:.95;text-wrap:balance}
 .features{--min:300px;border-bottom:2px solid var(--ink)}
 .feat{padding:40px clamp(20px,3vw,40px);display:flex;flex-direction:column;gap:12px;border-right:1px solid var(--line)}
 .feat:last-child{border-right:0}
-.feat .mono{font-size:13px;letter-spacing:3px;color:var(--accent)}
+.feat .mono{font-weight:400;font-size:16px;letter-spacing:3px;color:var(--accent)}
 .feat h3{margin:0;font-size:28px;line-height:1.1}
 .feat p{margin:0;font-size:16px;line-height:1.55;color:var(--muted)}
 .demo{padding-top:clamp(40px,6vw,80px);padding-bottom:clamp(40px,6vw,80px);display:flex;flex-direction:column;gap:28px;align-items:center;border-bottom:2px solid var(--ink)}
@@ -68,12 +68,12 @@ h1{margin:0;font-size:clamp(48px,7vw,96px);line-height:.95;text-wrap:balance}
 .close h2{margin:0;font-size:clamp(36px,4.5vw,60px);line-height:1}
 .close p{margin:0;font-size:17px;line-height:1.55;color:var(--muted);max-width:460px}
 footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:20px;padding-bottom:20px;background:#231b1b;color:#f3e9d2;font-size:13px}
-footer div{display:flex;gap:20px}footer a{color:#f3e9d2}footer a:hover{color:#e2553f}
+footer div{display:flex;gap:20px}footer a{color:#f3e9d2}footer a:hover{color:#ddb13c}
 </style>
 </head>
 <body>
 <nav class="px">
-  <a class="brand" href="./"><span class="mark"></span><span class="slab" style="font-size:24px;letter-spacing:3px">FAUVE</span></a>
+  <a class="brand" href="./"><span class="mark"></span><span class="slab" style="font-size:26px;letter-spacing:0">FAUVE</span></a>
   <div class="links mono">
     <a href="#security">Security</a>
     <a href="#models">Local models</a>
@@ -104,7 +104,7 @@ footer div{display:flex;gap:20px}footer a{color:#f3e9d2}footer a:hover{color:#e2
 <section class="grid features" id="security">
   <div class="feat"><div class="mono">01 · SANDBOXED</div><h3 class="slab">Every action runs in a sandbox.</h3><p>Network is off unless you allow it, and Fauve logs everything it touches. Nothing happens without a record.</p></div>
   <div class="feat" id="models"><div class="mono">02 · LOCAL MODELS</div><h3 class="slab">Your data stays on your device.</h3><p>Run Llama, Mistral or Qwen on your own machine. Use a cloud model only when you choose to.</p></div>
-  <div class="feat"><div class="mono">03 · OPEN SOURCE</div><h3 class="slab">Read every line of code.</h3><p>MIT-licensed and on GitHub. No secret telemetry, no lock-in, no surprises.</p></div>
+  <div class="feat"><div class="mono">03 · OPEN SOURCE</div><h3 class="slab">Read every line of code.</h3><p>Apache 2.0-licensed and on GitHub. No secret telemetry, no lock-in, no surprises.</p></div>
 </section>
 
 <section class="demo px">
@@ -132,7 +132,7 @@ footer div{display:flex;gap:20px}footer a{color:#f3e9d2}footer a:hover{color:#e2
 </section>
 
 <footer class="px mono">
-  <span>FAUVE · MIT LICENSE</span>
+  <span>FAUVE · APACHE 2.0 LICENSE</span>
   <div><a href="https://github.com/bebop-cow/fauve#readme">Docs</a><a href="https://github.com/bebop-cow/fauve/security/policy">Security policy</a><a href="https://github.com/bebop-cow/fauve">GitHub</a></div>
 </footer>
 
