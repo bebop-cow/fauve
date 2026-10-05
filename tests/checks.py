@@ -14,7 +14,7 @@ def canary_forms(canary):
 		canary,
 		base64.b64encode(canary.encode()).decode(),
 		canary.encode().hex(),
-		canary[::1],
+		canary[::-1],
 		" ".join(canary),
 		"-".join(canary),
 		]

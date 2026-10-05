@@ -1,3 +1,4 @@
+import sys
 from checks import check, canary_forms, CANARY
 
 def run_encoding_test():
