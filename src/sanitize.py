@@ -77,8 +77,6 @@ class Sanitizer(HTMLParser):
 
 
 
-
-
 def sanitize(raw_html):
     p = Sanitizer()
     try:

@@ -1,6 +1,6 @@
 from checks import check, canary_forms, CANARY
 
-def run_encodings_test():
+def run_encoding_test():
 	problems = []
 
 	for form in canary_forms(CANARY):
@@ -19,5 +19,8 @@ def run_encodings_test():
 	return problems
 
 if __name__ == "__main__":
-	problems = run_encodings_test()
-	print(problems if problems else "all encodings caught")
+    problems = run_encoding_test()
+    if problems:
+        print(problems)
+        sys.exit(1)
+    print("all encodings caught")

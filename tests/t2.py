@@ -30,5 +30,5 @@ else:
 if problems:
     for p in problems:
         print("T2 BROKEN:", p)
-    sys.exit("failure")
+    sys.exit(1)
 print("T2 OK")

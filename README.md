@@ -23,7 +23,7 @@ Implemented and tested:
 Planned: tool layer, sandbox, OAuth broker, local model, retention
 and erase commands (T3 to T12).
 
-Run all tests: see tests/ (python3 tests/<name>.py from the repo root).
+Run all tests: ./run_tests.sh 
 
 ## License
 See [LICENSE](LICENSE).
