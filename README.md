@@ -25,5 +25,6 @@ and erase commands (T3 to T12).
 
 Run all tests: ./run_tests.sh 
 
+Pin hashes are generated with scripts/hashtool.py
 ## License
 See [LICENSE](LICENSE).

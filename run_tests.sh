@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 failed=0
 for t in tests/t*.py; do
-  echo "▶ $t"
+  echo " $t"
   if ! python3 "$t"; then
     failed=1_
   fi
