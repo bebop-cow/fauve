@@ -97,7 +97,8 @@ Known gaps:
 =T8 gaps=
 - path traversal - a key like ../../x escapes the store's folder. 
   Goes with the write tier tests
-
+=T10 gaps=
+- memory only timestamp gap
 
 ## References
 
