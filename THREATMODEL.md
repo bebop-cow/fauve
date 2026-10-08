@@ -99,7 +99,8 @@ Known gaps:
   Goes with the write tier tests
 =T10 gaps=
 - memory only timestamp gap
-
+=T11 gaps=
+-4days between prompt and erase
 ## References
 
 - OWASP Top 10 for LLM Applications
