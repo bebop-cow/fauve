@@ -5,9 +5,11 @@ class Retention:
         self.clock = clock
         self.items = items if items is not None else {}   # key -> time saved
         self.kept = set()
+        self.touched = {}
 
     def add(self, key):
          self.items[key] = self.clock()
+         self.touched[key] = self.clock()
 
     def age_days(self, key):
         return (self.clock() - self.items[key]) / DAY
@@ -31,6 +33,7 @@ class Retention:
         for key in keys_to_remove:
             self.items.pop(key)
             self.kept.discard(key)
+            self.touched.pop(key, None)
 
         return keys_to_remove
 
@@ -47,9 +50,22 @@ class Retention:
 
     def keep(self, key):
         # only if the item exists: reset its time, mark it kept
-        keep_list = []
         if key in self.items:
             self.items[key] = self.clock()
             self.kept.add(key)
 
+    def touch(self, key):
+        # only if the item exists: update self.touched[key]
+        if key in self.items:
+            self.touched[key] = self.clock()
+
+    def unused(self):
+        # keys untouched for 28+ days (return a list)
+        untouched28 = []
+        for key in self.items:
+            last = self.touched.get(key, self.items[key])
+            days = (self.clock() - last) / DAY
+            if days >= 28:
+                untouched28.append(key)
+        return untouched28
 

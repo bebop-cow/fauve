@@ -56,7 +56,7 @@ Erasure means real deletion (storage, logs, caches, embeddings), not a hidden fl
 | T11 | "Keep" schedules the next prompt at day 14, and it must be explicit each time |
 | T12 | At day 31, only the item untouched for 28+ days is flagged as unused |
 
-Status: T1, T2, T3a, T3b, T4, T5, T6, T7 implemented. T8 - T12 planned
+Status: T1 - T12 implemented
 
 ## Residual risks (not fully solved)
 
