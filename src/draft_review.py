@@ -1,7 +1,7 @@
 import re
 from urllib.parse import urlparse
 
-URL = re.compile(r"https?://[^\s)>\]]+")
+URL = re.compile(r"https?://[^\s)>\]]+", re.IGNORECASE)
 
 def classify_url(url):
 	p = urlparse(url)

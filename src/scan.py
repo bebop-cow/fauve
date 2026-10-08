@@ -1,14 +1,16 @@
 import re
 
-CARD = re.compile(r"\b\d{13,19}\b")
+CARD = re.compile(r"(?<!\d)\d{13,19}(?!\d)")
 
-SSN = re.compile(r"\b\d{3}-\d{2}-\d{4}\b")
+SSN = re.compile(r"(?<!\d)\d{3}-\d{2}-\d{4}(?!\d)")
 
 KEYS = {
     "aws_key":     re.compile(r"AKIA[0-9A-Z]{16}"),
     "sk_key":      re.compile(r"sk-[0-9A-Za-z_-]{20,}"),
     "private_key": re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
 }
+
+
 
 
 def luhn_ok(digits):

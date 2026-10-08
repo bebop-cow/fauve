@@ -58,6 +58,9 @@ Erasure means real deletion (storage, logs, caches, embeddings), not a hidden fl
 
 Status: T1 - T12 implemented
 
+Notes
+T9 - \b missed digits glued to letters/underscore; fixed with lookarounds
+
 ## Residual risks (not fully solved)
 
 - Prompt injection cannot be fully prevented. Containment (no send/pay tools,
