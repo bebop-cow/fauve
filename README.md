@@ -13,7 +13,7 @@ for you, but never sends, pays, or stores passwords.
 
 ## Status
 
-v0.1, design plus tested building blocks. Not a working agent yet.
+v0.4, design plus tested building blocks. Not a working agent yet.
 
 Implemented and tested:
 - Threat model (THREATMODEL.md)
