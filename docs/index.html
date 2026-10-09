@@ -2,20 +2,26 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fauve — the agent that answers only to you</title>
-<meta name="description" content="Fauve is an open-source AI agent. Every action runs in a sandbox, and it can run fully on local models so your data never leaves your device.">
+<meta name="description" content="Fauve is an open-source, privacy-first AI agent in early alpha. It treats email as untrusted data and is built to keep your data on your device.">
 <meta property="og:title" content="Fauve">
 <meta property="og:description" content="The agent that answers only to you.">
 <meta property="og:image" content="https://bebop-cow.github.io/fauve/assets/social-preview.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="assets/favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400&family=Courier+Prime:wght@400;700&family=Libre+Franklin:wght@400;500;600&display=swap" rel="stylesheet">
 <script>
 (function(){var h=new Date().getHours(),s=localStorage.getItem('fauve-theme');document.documentElement.dataset.theme=s||(h>=6&&h<18?'day':'night');})();
 </script>
 <style>
+@font-face{font-family:'Josefin Sans';font-weight:300;font-style:normal;font-display:swap;src:url(assets/fonts/josefin-sans-latin-300-normal.woff2) format('woff2')}
+@font-face{font-family:'Josefin Sans';font-weight:400;font-style:normal;font-display:swap;src:url(assets/fonts/josefin-sans-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Courier Prime';font-weight:400;font-style:normal;font-display:swap;src:url(assets/fonts/courier-prime-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Courier Prime';font-weight:700;font-style:normal;font-display:swap;src:url(assets/fonts/courier-prime-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Libre Franklin';font-weight:400;font-style:normal;font-display:swap;src:url(assets/fonts/libre-franklin-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Libre Franklin';font-weight:500;font-style:normal;font-display:swap;src:url(assets/fonts/libre-franklin-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Libre Franklin';font-weight:600;font-style:normal;font-display:swap;src:url(assets/fonts/libre-franklin-latin-600-normal.woff2) format('woff2')}
 :root,[data-theme=day]{--bg:#f3e9d2;--panel:#fbf5e6;--ink:#231b1b;--muted:#5e4e44;--accent:#c99a1e;--on:#231b1b;--line:rgba(35,27,27,.18);--ub:#231b1b;--ui:#f3e9d2;--ab:#fffaf0;--art:url(assets/cat-newsboy.jpg);--art2:url(assets/cat-detective.jpg)}
 [data-theme=night]{--bg:#171211;--panel:#221b1a;--ink:#f1e5cc;--muted:#b3a596;--accent:#ddb13c;--on:#231b1b;--line:rgba(241,229,204,.16);--ub:#f1e5cc;--ui:#171211;--ab:#251d1c;--art:url(assets/cat-detective.jpg);--art2:url(assets/cat-newsboy.jpg)}
 [data-theme=day] .night,[data-theme=night] .day{display:none}
@@ -87,34 +93,35 @@ footer div{display:flex;gap:20px}footer a{color:#f3e9d2}footer a:hover{color:#dd
   <div class="hero-copy px">
     <div class="tag mono"><span class="day">DAY SHIFT</span><span class="night">NIGHT SHIFT</span> · <span id="time"></span></div>
     <h1 class="slab">The agent that answers only to you.</h1>
-    <p class="lede">Fauve is an open-source AI agent. It does real work on your computer, every action runs in a sandbox, and it can run fully on local models so your data never leaves your device.</p>
+    <p class="lede">Fauve is an open-source, privacy-first AI agent, now in early alpha. It is built to read your email as untrusted data and to only search and draft: it never sends, pays or stores passwords.</p>
     <div class="ctas">
-      <a class="btn" href="https://github.com/bebop-cow/fauve/releases/latest">Download Fauve</a>
-      <div class="cmd mono"><span>$ brew install fauve</span><button data-copy="brew install fauve">copy</button></div>
+      <a class="btn" href="web/">Try the alpha</a>
+      <a class="btn2" href="https://github.com/bebop-cow/fauve/blob/HEAD/THREATMODEL.md">Read the threat model</a>
     </div>
   </div>
   <div class="art">
     <div class="status">
       <div class="slab" style="font-size:24px"><span class="day">Morning edition.</span><span class="night">On the case.</span></div>
-      <div class="mono" style="font-weight:400;font-size:13px;color:var(--muted)">● Sandbox on · local model · data on device</div>
+      <div class="mono" style="font-weight:400;font-size:13px;color:var(--muted)">● Alpha · T1–T12 tests passing · no tracking</div>
     </div>
   </div>
 </section>
 
 <section class="grid features" id="security">
-  <div class="feat"><div class="mono">01 · SANDBOXED</div><h3 class="slab">Every action runs in a sandbox.</h3><p>Network is off unless you allow it, and Fauve logs everything it touches. Nothing happens without a record.</p></div>
-  <div class="feat" id="models"><div class="mono">02 · LOCAL MODELS</div><h3 class="slab">Your data stays on your device.</h3><p>Run Llama, Mistral or Qwen on your own machine. Use a cloud model only when you choose to.</p></div>
-  <div class="feat"><div class="mono">03 · OPEN SOURCE</div><h3 class="slab">Read every line of code.</h3><p>Apache 2.0-licensed and on GitHub. No secret telemetry, no lock-in, no surprises.</p></div>
+  <div class="feat"><div class="mono">01 · UNTRUSTED BY DEFAULT</div><h3 class="slab">Emails are data, not orders.</h3><p>Hidden text, tracking images and look-alike instructions are stripped and labeled before a model reads anything. Warnings come from Fauve, never from the model.</p></div>
+  <div class="feat" id="models"><div class="mono">02 · ON YOUR DEVICE</div><h3 class="slab">Built to keep your data local.</h3><p>The alpha is designed to run in your browser with a small open model, so there is nothing to upload. A cloud model, if one is ever added, will be opt-in.</p></div>
+  <div class="feat"><div class="mono">03 · OPEN SOURCE</div><h3 class="slab">Read every line of code.</h3><p>On GitHub with a public threat model that lists what is covered and what is not. No analytics, and this page loads nothing from third parties.</p></div>
 </section>
 
 <section class="demo px">
-  <h2 class="slab">Watch it work. Approve what matters.</h2>
+  <h2 class="slab">Warnings come from Fauve, not the model.</h2>
   <div class="chat">
-    <div class="me">Find last month's receipts in my email and add them to my expenses sheet.</div>
-    <div class="bot">I found 11 receipts. Before I write to your expenses sheet, I need your OK.</div>
+    <div class="mono" style="font-weight:400;font-size:12px;letter-spacing:2px;color:var(--muted)">ILLUSTRATIVE MOCKUP</div>
+    <div class="me">Summarize my unread email from today.</div>
+    <div class="bot">I read 3 emails as untrusted data. Email 2 had hidden text, so it was removed before I read it.</div>
     <div class="perm">
-      <div class="mono"><div style="font-weight:700;color:var(--accent)">PERMISSION NEEDED</div><div>Edit file: ~/Documents/expenses.xlsx (11 new rows)</div></div>
-      <div class="row"><span class="chip on">Allow once</span><span class="chip">Deny</span></div>
+      <div class="mono"><div style="font-weight:700;color:var(--accent)">WARNING · EMAIL 2 OF 3</div><div>Hidden instructions removed. 1 tracking image removed.</div></div>
+      <div class="row"><span class="chip on">Show what was removed</span><span class="chip">Continue</span></div>
     </div>
   </div>
 </section>
@@ -123,9 +130,9 @@ footer div{display:flex;gap:20px}footer a{color:#f3e9d2}footer a:hover{color:#dd
   <div class="art2"></div>
   <div class="close-copy px">
     <h2 class="slab">Day shift or night shift.</h2>
-    <p>Fauve follows your clock: the paperboy covers the daytime and the detective takes the night. Free, open source, ready for the case.</p>
+    <p>Fauve follows your clock: the paperboy covers the daytime and the detective takes the night. Free, open source and early. Read the threat model before you trust it.</p>
     <div class="ctas">
-      <a class="btn" href="https://github.com/bebop-cow/fauve/releases/latest">Download Fauve</a>
+      <a class="btn" href="web/">Try the alpha</a>
       <a class="btn2" href="https://github.com/bebop-cow/fauve">Star on GitHub ↗</a>
     </div>
   </div>
@@ -141,7 +148,6 @@ var root=document.documentElement;
 function tick(){document.getElementById('time').textContent=new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}).toUpperCase();}
 tick();setInterval(tick,30000);
 document.getElementById('toggle').onclick=function(){var t=root.dataset.theme==='day'?'night':'day';root.dataset.theme=t;localStorage.setItem('fauve-theme',t);};
-document.querySelectorAll('[data-copy]').forEach(function(b){b.onclick=function(){navigator.clipboard.writeText(b.dataset.copy);b.textContent='copied';setTimeout(function(){b.textContent='copy'},1500);};});
 </script>
 </body>
 </html>
