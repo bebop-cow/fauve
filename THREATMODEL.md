@@ -59,6 +59,7 @@ Erasure means real deletion (storage, logs, caches, embeddings), not a hidden fl
 Status: T1 - T12 implemented
 
 Notes
+T8 - Save overwrites ("w"), not appends; tests conver re-saving the same key
 T9 - \b missed digits glued to letters/underscore; fixed with lookarounds
 
 ## Residual risks (not fully solved)

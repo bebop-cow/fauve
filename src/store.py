@@ -15,9 +15,8 @@ class Store:
         with open(path, "w") as f:
             f.write(text)
         self.cache[key] = text
-        with open(path, "a") as f:
-            f.write(text)
-        
+        with open(self.log_path, "a") as f:
+            f.write(key + "\n")        
 
     def erase(self, key):
         self.cache.pop(key, None)

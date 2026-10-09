@@ -24,6 +24,17 @@ with tempfile.TemporaryDirectory() as root:
     if not leaks(root, s):
         problems.append("CHECK 0: canary not planted")
 
+    # CHECK D: save wrote exactly what we gave it
+    with open(os.path.join(root, "note1")) as f:
+        if f.read() != f"secret {CANARY}":
+            problems.append("CHECK D: file contents differ from saved text")
+
+    # CHECK E: saving the same key again replaces the old text
+    s.save("note1", "second version")
+    with open(os.path.join(root, "note1")) as f:
+        if f.read() != "second version":
+            problems.append("CHECK E: second save did not replace the first")
+
     s.erase("note1")
 
     # CHECK A: nothing left anywhere
@@ -36,6 +47,8 @@ with tempfile.TemporaryDirectory() as root:
         s.erase("nope")
     except Exception:
         problems.append("CHECK B: erase crashed on missing key")
+
+
 
 
 if problems:
