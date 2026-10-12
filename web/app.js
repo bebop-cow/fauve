@@ -1,26 +1,18 @@
 const py = await loadPyodide();
-const code = await (await fetch("../src/sanitize.py")).text();
-py.FS.writeFile("sanitize.py", code);
-const sanitize = py.runPython(`
-from sanitize import sanitize
-sanitize
+for (const name of ["sanitize.py", "pipeline.py"]) {          // which files, in which order?
+  const code = await (await fetch("../src/" + name)).text();
+  py.FS.writeFile(name, code);
+}
+const prepare = py.runPython(`
+from pipeline import prepare
+prepare
 `);
 
 document.getElementById("go").onclick = () => {
-  const [text, report] = sanitize(document.getElementById("in").value).toJs({dict_converter: (pairs) => new Map(pairs)});
-  const out = document.getElementById("out");
-  const banner = document.getElementById("banner");
-
-  if (text == null) {
-    out.innerText = "email withheld";
-    banner.innerText = "WARNING: email withheld: " + report.get("error");
-    return;
-  }
-
-  out.innerText = text;
-  const lines = [];
-  report.forEach((count, name) => {
-    if (count > 0) lines.push(name + ": " + count);
-  });
-  banner.innerText = lines.length ? "WARNING: " + lines.join(", ") : "nothing removed :)";
+  const emails = document.getElementById("in").value.split("\n---\n");   // blank: the separator between emails
+  const [modelInput, banners] = prepare(py.toPy(emails)).toJs();
+  document.getElementById("model").innerText = modelInput.join("\n\n");
+  document.getElementById("banner").innerText =
+    banners.length ? "WARNING: " + banners.join(" | ") : "nothing removed :)";
 };
+
