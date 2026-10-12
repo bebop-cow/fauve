@@ -9,9 +9,7 @@ KEYS = {
     "sk_key":      re.compile(r"sk-[0-9A-Za-z_-]{20,}"),
     "private_key": re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
 }
-
-
-
+PRIVATE_BLOCK = re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----.*?-----END [A-Z ]*PRIVATE KEY-----", re.DOTALL)
 
 def luhn_ok(digits):
     nums = [int(c) for c in digits][::-1]
@@ -36,3 +34,15 @@ def find_sensitive(text):
         if pattern.search(text):
             findings.append(kind)
     return findings
+
+def mask_sensitive(text):
+    def card_fix(m):
+        if luhn_ok(m.group(0)):
+            return "[REDACTED card]"        
+        return m.group(0)                    # not a real card: leave it alone
+    text = CARD.sub(card_fix, text)             
+    text = SSN.sub("[REDACTED ssn]", text)
+    text = PRIVATE_BLOCK.sub("[REDACTED private_key]", text)
+    for kind, pattern in KEYS.items():
+        text = pattern.sub(f"[REDACTED {kind}]", text)
+    return text
