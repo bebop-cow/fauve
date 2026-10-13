@@ -76,7 +76,6 @@ class Sanitizer(HTMLParser):
             self.report["stray_closing_tag"] += 1
 
 
-
 def sanitize(raw_html):
     p = Sanitizer()
     try:
@@ -87,3 +86,4 @@ def sanitize(raw_html):
     text = "".join(p.kept)
     text = " ".join(text.split())
     return text, p.report
+
