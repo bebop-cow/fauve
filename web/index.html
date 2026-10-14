@@ -2,17 +2,135 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fauve alpha</title>
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400&family=Courier+Prime:wght@400;700&family=Libre+Franklin:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="vendor/pyodide/pyodide.js"></script> 
   <!-- https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js   -->
+  <script>
+    // Theme follows the clock: day 6am–6pm, night otherwise. Cosmetic only.
+    (function () {
+      var h = new Date().getHours();
+      document.documentElement.dataset.theme = (h >= 6 && h < 18) ? "day" : "night";
+    })();
+  </script>
+  <style>
+    :root, [data-theme=day] {
+      --bg:#f3e9d2; --panel:#fbf5e6; --ink:#231b1b; --muted:#6b5a4e; --accent:#cc2a18; --gold:#c99a1e;
+      --label:#7d5a0c; --line:rgba(35,27,27,.15); --on:#f3e9d2; --well:#ebdfc4;
+      --art:url(assets/cat-newsboy.jpg); --shift:"Day shift";
+    }
+    [data-theme=night] {
+      --bg:#0b1228; --panel:#141d3d; --ink:#f3e9d2; --muted:#aeb4cc; --accent:#ddb13c; --gold:#ddb13c;
+      --label:#ddb13c; --line:rgba(243,233,210,.16); --on:#231b1b; --well:#101833;
+      --art:url(assets/cat-detective.jpg); --shift:"Night shift";
+    }
+    *, *::before, *::after { box-sizing:border-box; }
+    html, body { margin:0; }
+    body {
+      min-height:100vh; background:var(--bg); color:var(--ink);
+      font:15px/1.55 "Libre Franklin", system-ui, sans-serif;
+      display:grid; grid-template-columns:minmax(0,1fr) minmax(220px,340px);
+      grid-template-rows:auto 1fr; grid-template-areas:"head art" "work art";
+      column-gap:0;
+    }
+    a { color:var(--accent); } a:hover { color:var(--ink); }
+
+    /* header + painting are pseudo-elements so the page markup stays as-is */
+    body::before {
+      grid-area:head; content:"Fauve";
+      font:300 44px/1 "Josefin Sans", sans-serif; letter-spacing:.02em;
+      padding:36px 40px 4px; max-width:860px; width:100%; justify-self:center;
+    }
+    body::after {
+      grid-area:art; content:var(--shift);
+      position:sticky; top:0; height:100vh; align-self:start;
+      background:var(--art) center/cover no-repeat, var(--well);
+      border-left:1px solid var(--line);
+      display:flex; align-items:flex-end; padding:18px;
+      font:700 11px/1 "Courier Prime", monospace; letter-spacing:.14em; text-transform:uppercase;
+      color:#f3e9d2; text-shadow:0 1px 3px rgba(0,0,0,.6);
+    }
+
+    #in, #go, #banner, #out, #model, #draft {
+      grid-area:auto; grid-column:1; justify-self:center; width:calc(100% - 80px); max-width:780px;
+    }
+    #in {
+      margin-top:28px; display:block; resize:vertical; min-height:200px;
+      background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:12px;
+      padding:16px 18px; font:14px/1.6 "Courier Prime", monospace; outline:none;
+    }
+    #in::placeholder { color:var(--muted); }
+    #in:focus { border-color:var(--gold); box-shadow:0 0 0 3px color-mix(in oklch, var(--gold) 25%, transparent); }
+
+    #go {
+      justify-self:start; width:auto; margin:14px 0 0 max(40px, calc((100% - 780px) / 2));
+      background:var(--accent); color:var(--on); border:0; border-radius:8px;
+      padding:11px 26px; font:600 14px/1 "Libre Franklin", sans-serif; letter-spacing:.02em; cursor:pointer;
+      transition:transform .12s, filter .12s;
+    }
+    #go:hover:not(:disabled) { filter:brightness(1.08); transform:translateY(-1px); }
+    #go:active:not(:disabled) { transform:translateY(0); }
+    #go:disabled { background:var(--well); color:var(--muted); cursor:wait; }
+
+    /* output blocks: label via ::before, hidden while empty */
+    #banner, #out, #model, #draft {
+      margin-top:22px; white-space:pre-wrap; word-wrap:break-word;
+      border:1px solid var(--line); border-radius:12px; padding:16px 18px;
+    }
+    #banner:empty, #out:empty, #draft:empty { display:none; }
+    #banner::before, #out::before, #model::before, #draft::before {
+      display:block; margin-bottom:8px;
+      font:700 11px/1 "Courier Prime", monospace; letter-spacing:.14em; text-transform:uppercase; color:var(--label);
+    }
+    #banner {
+      background:var(--panel); border:1.5px solid var(--gold); font:500 14px/1.55 "Libre Franklin", sans-serif;
+    }
+    #banner::before { content:"Safety check"; }
+    #banner[data-warn] { border-color:var(--accent); }
+    #banner[data-warn]::before { content:"Warning"; color:var(--accent); }
+
+    #draft { background:var(--panel); font:15px/1.65 "Libre Franklin", sans-serif; margin-bottom:0; }
+    #draft::before { content:"Draft reply"; }
+
+    #out { background:var(--panel); font:13px/1.6 "Courier Prime", monospace; }
+    #out::before { content:"Output"; }
+
+    #model {
+      background:var(--well); color:var(--muted); font:12.5px/1.6 "Courier Prime", monospace;
+      max-height:260px; overflow:auto; margin-bottom:48px;
+    }
+    #model::before { content:"What the model saw"; }
+    #model:empty::after { content:"Loading model…"; }
+
+    @media (max-width:760px) {
+      body { grid-template-columns:minmax(0,1fr); grid-template-rows:auto auto 1fr; grid-template-areas:"art" "head" "work"; }
+      body::after { position:relative; height:33vh; border-left:0; border-bottom:1px solid var(--line); }
+      body::before { padding:24px 20px 0; font-size:36px; }
+      #in, #banner, #out, #model, #draft { width:calc(100% - 40px); }
+      #go { margin-left:20px; }
+    }
+  </style>
 </head>
 <body>
-  <textarea id="in" rows="10" cols="60"></textarea>
+  <textarea id="in" rows="10" cols="60" placeholder="Paste emails here. Separate each one with a line containing only ---"></textarea>
   <button id="go" disabled>Clean</button>
   <div id="banner"></div>
   <pre id="out"></pre>
   <pre id="model"></pre>
   <pre id="draft"></pre>
+  <script>
+    // Cosmetic: tint the banner red when app.js writes a warning.
+    (function () {
+      var b = document.getElementById("banner");
+      new MutationObserver(function () {
+        if (/^WARNING/.test(b.innerText)) b.setAttribute("data-warn", ""); else b.removeAttribute("data-warn");
+      }).observe(b, { childList:true, characterData:true, subtree:true });
+    })();
+  </script>
   <script type="module" src="app.js"></script>
 </body>
 </html>
