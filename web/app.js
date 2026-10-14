@@ -35,6 +35,7 @@ document.getElementById("go").onclick = async () => {
         { role: "user", content: modelInput.join("\n\n") },
       ],
     });
+    throw new Error("x");
     [draftText, draftNotes] = reviewOutput(reply.choices[0].message.content).toJs();
   } catch (e) {
     draftText = "draft withheld";
