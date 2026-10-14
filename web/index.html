@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <title>Fauve alpha</title>
-  <script src="https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js"></script>   
+  <script src="vendor/pyodide/pyodide.js"></script> 
+  <!-- https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.js   -->
 </head>
 <body>
   <textarea id="in" rows="10" cols="60"></textarea>
-  <button id="go">Clean</button>
+  <button id="go" disabled>Clean</button>
   <div id="banner"></div>
   <pre id="out"></pre>
   <pre id="model"></pre>

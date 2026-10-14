@@ -1,6 +1,8 @@
 from sanitize import sanitize
 from scan import find_sensitive, mask_sensitive
 from draft_review import review_draft
+import re
+FAKE = re.compile(r"\[(REDACTED|link removed|image removed|UNTRUSTED)", re.IGNORECASE)
 
 def banner(source, report):
     parts = [f"{n} {k}" for k, n in report.items() if n > 0]
@@ -39,11 +41,13 @@ def prepare(raw_emails):
     return model_input, banners
 
 def review_output(text):
-    kinds = find_sensitive(text)            # blank 1: scan the draft first (kinds only)
-    text = mask_sensitive(text)             # blank 2: then mask it
-    text, findings = (review_draft(text))   # blank 3: links and images
     notes = []
+    if FAKE.search(text):
+        notes.append("This draft imitates a built-in Fauve label. Treat it with caution.")
+    kinds = find_sensitive(text)
+    text = mask_sensitive(text)
+    text, findings = review_draft(text)
     for k in kinds:
-        notes.append(f"{k} was masked in this draft")     # blank 4: say a [kind] was masked in the draft
+        notes.append(f"{k} was masked in this draft")
     notes.extend(findings)
     return text, notes
