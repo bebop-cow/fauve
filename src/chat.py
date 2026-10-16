@@ -1,4 +1,4 @@
-from pipeline import wrap
+from pipeline import wrap, review_output
 
 class Chat:
     def __init__(self, system_prompt):
@@ -16,9 +16,12 @@ class Chat:
         else:
             self.history.append({"role": "user", "content": item })
         
-
         return banners
 
     def add_user(self, text):
         self.history.append({"role": "user", "content": text })
-        
+
+    def add_reply(self, raw_reply):
+        text, notes = review_output(raw_reply)
+        self.history.append({"role": "assistant", "content": text})
+        return notes
