@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Fauve chat (alpha)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 5rem; }
+    #banner, #tainted, #history { white-space: pre-wrap; margin: .75rem 0; }
+    #banner { color: #b45309; }
+  </style>
+</head>
+<body>
+  <h1>Fauve chat (alpha)</h1>
+
+  <div id="tainted"></div>
+  <div id="banner"></div>
+  <div id="history"></div>
+
+  <h2>Paste something</h2>
+  <textarea id="pasteBox"></textarea>
+  <button id="pasteBtn" disabled>Paste</button>
+
+  <h2>Ask Fauve</h2>
+  <textarea id="inputBox"></textarea>
+  <button id="sendBtn" disabled>Send</button>
+
+  <script src="vendor/pyodide/pyodide.js"></script>
+  <script type="module" src="chat.js"></script>
+</body>
+</html>

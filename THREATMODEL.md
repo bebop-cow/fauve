@@ -113,8 +113,9 @@ The v0.5 browser alpha does not store data, so these rules apply to the library 
 | T12 | At day 31, only the item untouched for 28+ days is flagged as unused |
 | T13 | Draft review: card masked, image and data-carrying link removed, findings never contain values |
 | T14 | Fake Fauve labels in a draft are flagged; clean drafts and Fauve's own labels are not |
+| T15 | Chat history: roles, paste labels (PASTE n), taint set on every paste and never cleared, withheld pastes leak nothing, replies stored only after review, fake labels in pastes flagged |
 
-Status: T1 - T14 implemented. Every check has been confirmed by a positive control (break it on purpose, confirm the test fails, restore).
+Status: T1 - T15 implemented. Every check has been confirmed by a positive control (break it on purpose, confirm the test fails, restore).
 
 Notes
 
