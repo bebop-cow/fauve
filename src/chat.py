@@ -1,4 +1,6 @@
-from pipeline import wrap, review_output
+import re
+from pipeline import wrap, review_output, FAKE
+
 
 class Chat:
     def __init__(self, system_prompt):
@@ -8,8 +10,11 @@ class Chat:
 
     def add_paste(self, raw):
         self.pastes += 1
+        rawfake = FAKE.search(raw)
         item, note = wrap(raw, f"PASTE {self.pastes}")
         banners = [note] if note else[]
+        if rawfake:
+            banners.append("this paste imitates a Fauve label")
         self.tainted = True
         if item is None:
             self.history.append({"role": "user", "content": "[FAUVE NOTICE] A pasted message was withheld because it could not be cleaned. Nothing from it is available."})
