@@ -1,0 +1,152 @@
+[
+  {
+    "name": "Acxiom LLC",
+    "email": "askprivacy@acxiom.com",
+    "rights_url": "www.acxiom.com/privacy",
+    "type": "email"
+  },
+  {
+    "name": "Equifax",
+    "email": "usprivacy@equifax.com",
+    "rights_url": "https://www.equifax.com/personal/my-privacy/",
+    "type": "email"
+  },
+  {
+    "name": "BeenVerified",
+    "email": "privacy@ltvco.com",
+    "rights_url": "https://www.beenverified.com/svc/optout/search/comprehensive_optouts",
+    "type": "email"
+  },
+  {
+    "name": "TransUnion",
+    "email": "privacy@transunion.com",
+    "rights_url": "www.transunion.com",
+    "type": "email"
+  },
+  {
+    "name": "Epsilon Data Management, LLC",
+    "email": "privacy@epsilon.com",
+    "rights_url": "https://legal.epsilon.com/dsr/",
+    "type": "email"
+  },
+  {
+    "name": "Experian (credit)",
+    "email": "CA_DROP_FSD@experian.com",
+    "rights_url": "https://www.experian.com/privacy/us-consumer-data-privacy-policy",
+    "type": "form"
+  },
+  {
+    "name": "Experian (marketing)",
+    "email": "CA_DROP_EMS@experian.com",
+    "rights_url": "https://consumerprivacy.experian.com",
+    "type": "form"
+  },
+  {
+    "name": "Family Tree Now, LLC",
+    "email": "privacy@familytreenow.com",
+    "rights_url": "https://www.familytreenow.com/privacy",
+    "type": "email"
+  },
+  {
+    "name": "MyLife",
+    "email": "membersupport@mylife.com",
+    "rights_url": "https://www.mylife.com",
+    "type": "form"
+  },
+  {
+    "name": "LexisNexis Risk",
+    "email": "consumer.documents@lexisnexisrisk.com",
+    "rights_url": "https://risk.lexisnexis.com/state-privacy-act-notice",
+    "type": "form"
+  },
+  {
+    "name": "TransUnion (Neustar)",
+    "email": "ns_privacy@transunion.com",
+    "rights_url": "www.transunion.com",
+    "type": "form"
+  },
+  {
+    "name": "Nuwber Inc",
+    "email": "support@nuwber.com",
+    "rights_url": "https://nuwber.com/policy",
+    "type": "form"
+  },
+  {
+    "name": "Pipl, Inc.",
+    "email": "privacy@pipl.com",
+    "rights_url": "https://pipl.com",
+    "type": "email"
+  },
+  {
+    "name": "Tapad (Experian)",
+    "email": "CA_DROP_TAPAD@experian.com",
+    "rights_url": "https://tapad.com/global-privacy-notice",
+    "type": "form"
+  },
+  {
+    "name": "Whitepages, Inc",
+    "email": "legal@whitepages.com",
+    "rights_url": "https://www.whitepages.com/privacy",
+    "type": "email"
+  },
+  {
+    "name": "CyberBackgroundChecks and related sites",
+    "email": "privacy@mtalley.zendesk.com",
+    "rights_url": "https://www.advancedbackgroundchecks.com/privacy",
+    "type": "email"
+  },
+  {
+    "name": "PeopleFinders",
+    "email": "customercare@peoplefinders.com",
+    "rights_url": "https://www.peoplefinders.com/about/privacy",
+    "type": "form"
+  },
+  {
+    "name": "Instant Checkmate",
+    "email": "tara.buck@peopleconnect.us",
+    "rights_url": "www.instantcheckmate.com/privacy-center",
+    "type": "form"
+  },
+  {
+    "name": "Intelius, LLC",
+    "email": "legal@intelius.com",
+    "rights_url": "www.intelius.com/privacy-center",
+    "type": "email"
+  },
+  {
+    "name": "LexisNexis",
+    "email": "privacy.inquiries@lexisnexis.com",
+    "rights_url": "https://www.lexisnexis.com/global/privacy/en/privacy-center-us.page",
+    "type": "form"
+  },
+  {
+    "name": "PeopleFinders DaaS",
+    "email": "bryce@peoplefindersdaas.com",
+    "rights_url": "www.peoplefindersdaas.com",
+    "type": "form"
+  },
+  {
+    "name": "Spokeo",
+    "email": "jmatthes@spokeo.com",
+    "rights_url": "https://www.spokeo.com/privacy-policy",
+    "type": "form"
+  },
+  {
+    "name": "SpyFly",
+    "email": "privacyinfo@spyfly.com",
+    "rights_url": "https://www.spyfly.com/help-center/privacy",
+    "type": "email"
+  },
+  {
+    "name": "TruePeopleSearch",
+    "email": "privacy@truepeoplesearch.com",
+    "rights_url": "https://www.truepeoplesearch.com/privacy",
+    "type": "email"
+  },
+  {
+    "name": "TruthFinder",
+    "email": "legal@peopleconnect.us",
+    "rights_url": "https://www.truthfinder.com/privacy-center/",
+    "type": "email"
+  }
+]
