@@ -4,46 +4,123 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'none'; script-src 'self'; connect-src 'self'; style-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+        content="default-src 'none'; script-src 'self'; connect-src 'self'; style-src 'unsafe-inline'; img-src 'self' data:; font-src 'self'; base-uri 'none'; form-action 'none'">
   <link rel="icon" href="data:,">
   <title>Houdini · Fauve</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
-    label { display: block; margin: .6rem 0 .2rem; }
-    input[type=text], input[type=email], input[type=tel] { width: 100%; box-sizing: border-box; padding: .4rem; }
-    .note { color: #555; font-size: .9rem; }
-    #list li { margin: .3rem 0; }
+    @font-face{font-family:'Josefin Sans';font-weight:300;font-style:normal;font-display:swap;src:url(assets/fonts/josefin-sans-latin-300-normal.woff2) format('woff2')}
+    @font-face{font-family:'Josefin Sans';font-weight:400;font-style:normal;font-display:swap;src:url(assets/fonts/josefin-sans-latin-400-normal.woff2) format('woff2')}
+    @font-face{font-family:'Courier Prime';font-weight:400;font-style:normal;font-display:swap;src:url(assets/fonts/courier-prime-latin-400-normal.woff2) format('woff2')}
+    @font-face{font-family:'Courier Prime';font-weight:700;font-style:normal;font-display:swap;src:url(assets/fonts/courier-prime-latin-700-normal.woff2) format('woff2')}
+    @font-face{font-family:'Libre Franklin';font-weight:400;font-style:normal;font-display:swap;src:url(assets/fonts/libre-franklin-latin-400-normal.woff2) format('woff2')}
+    @font-face{font-family:'Libre Franklin';font-weight:500;font-style:normal;font-display:swap;src:url(assets/fonts/libre-franklin-latin-500-normal.woff2) format('woff2')}
+    @font-face{font-family:'Libre Franklin';font-weight:600;font-style:normal;font-display:swap;src:url(assets/fonts/libre-franklin-latin-600-normal.woff2) format('woff2')}
+    :root {
+      --bg:#0b1228; --panel:#141d3d; --well:#101833; --ink:#f3e9d2; --muted:#aeb4cc;
+      --gold:#ddb13c; --red:#cc2a18; --line:rgba(243,233,210,.16);
+      --display:"Josefin Sans", "Futura", "Century Gothic", "Avenir Next", sans-serif;
+      --label:"Courier Prime", "Courier New", ui-monospace, monospace;
+      --body:"Libre Franklin", "Helvetica Neue", system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing:border-box; }
+    html, body { margin:0; }
+    body { background:var(--bg); color:var(--ink); font:15px/1.6 var(--body); }
+    a { color:var(--gold); text-underline-offset:3px; }
+    a:hover { color:var(--ink); }
+
+    .hero {
+      position:relative; height:min(52vh, 520px); min-height:280px;
+      background:#0b1228 url("assets/houdini-maze.png") center 30%/cover no-repeat;
+      border-bottom:1px solid var(--line);
+    }
+    .hero::after { content:""; position:absolute; inset:auto 0 0 0; height:55%;
+      background:linear-gradient(to bottom, rgba(11,18,40,0), rgba(11,18,40,.92)); }
+    .hero-text { position:absolute; z-index:1; left:0; right:0; bottom:0;
+      max-width:46rem; margin:0 auto; padding:0 1.5rem 1.6rem; }
+    .kicker { font:700 11px/1 var(--label); letter-spacing:.16em; text-transform:uppercase; color:var(--gold); margin:0 0 .7rem; }
+    h1 { font:300 clamp(48px, 9vw, 88px)/.95 var(--display); letter-spacing:.01em; margin:0; }
+
+    main { max-width:46rem; margin:0 auto; padding:2rem 1.5rem 4rem; display:flex; flex-direction:column; gap:1.1rem; }
+    main > p:first-child { font-size:18px; line-height:1.55; margin:0; text-wrap:pretty; }
+    .note { color:var(--muted); font:13px/1.55 var(--label); margin:0; }
+    .lede-note { border-left:0; padding:.7rem .9rem; background:var(--well); border:1px solid var(--line); border-radius:8px; }
+
+    h2 { font:700 12px/1 var(--label); letter-spacing:.16em; text-transform:uppercase; color:var(--gold);
+      margin:1.6rem 0 0; display:flex; align-items:center; gap:.8rem; }
+    h2::after { content:""; flex:1; height:1px; background:var(--line); }
+
+    .start { list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:.8rem; }
+    .start li { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:1rem 1.1rem; color:var(--muted); font-size:14px; }
+    .start a { display:block; color:var(--ink); font:300 22px/1.2 var(--display); text-decoration:none; margin-bottom:.35rem; }
+    .start a:hover { color:var(--gold); }
+
+    .file { background:var(--panel); border:1.5px solid var(--gold); border-radius:14px; padding:1.3rem 1.4rem 1.4rem;
+      display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:.2rem 1rem; }
+    .file .f { display:flex; flex-direction:column; }
+    .file .wide { grid-column:1 / -1; }
+    label { font:700 11px/1 var(--label); letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin:.8rem 0 .4rem; }
+    input[type=text], input[type=email], input[type=tel] {
+      width:100%; padding:.65rem .75rem; background:var(--well); color:var(--ink);
+      border:1px solid var(--line); border-radius:8px; font:15px/1.3 var(--body); outline:none;
+    }
+    input[type=text]:focus, input[type=email]:focus, input[type=tel]:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(221,177,60,.22); }
+    label.check { display:flex; align-items:center; gap:.6rem; text-transform:none; letter-spacing:0; font:15px/1.3 var(--body); color:var(--ink); margin:1rem 0 0; cursor:pointer; }
+    input[type=checkbox] { width:18px; height:18px; accent-color:var(--gold); margin:0; }
+    .file p { margin:1.1rem 0 0; }
+    button { font:600 14px/1 var(--body); letter-spacing:.02em; cursor:pointer; border-radius:8px; transition:transform .12s, filter .12s; }
+    #make { background:var(--gold); color:#231b1b; border:0; padding:.85rem 1.6rem; }
+    #make:hover { filter:brightness(1.08); transform:translateY(-1px); }
+    #make:active { transform:none; }
+
+    #list { list-style:none; padding:0; margin:0; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--panel); }
+    #list:empty { display:none; }
+    #list li { margin:0; padding:.8rem 1.1rem; border-top:1px solid var(--line); display:flex; flex-wrap:wrap; align-items:center; gap:.4rem .9rem; }
+    #list li:first-child { border-top:0; }
+    #list li:nth-child(even) { background:var(--well); }
+    #list a, #list button { margin-left:auto; }
+    #list button { background:transparent; color:var(--gold); border:1px solid var(--gold); padding:.5rem .9rem; }
+    #list button:hover { background:var(--gold); color:#231b1b; }
+
+    footer.note { margin-top:1.6rem; padding-top:1rem; border-top:1px solid var(--line); }
+    @media (max-width:560px) {
+      .file { grid-template-columns:minmax(0, 1fr); padding:1.1rem; }
+      .hero { height:38vh; }
+    }
   </style>
 </head>
 <body>
-  <h1>Houdini</h1>
-  <p>Ask data brokers to delete what they hold about you. Houdini writes the requests; you send them.</p>
-  <p class="note">Nothing you type leaves this page or is saved. Close the tab and it's gone.</p>
+  <header class="hero">
+    <div class="hero-text">
+      <p class="kicker">Fauve · Case file</p>
+      <h1>Houdini</h1>
+    </div>
+  </header>
+  <main>
+    <p>Ask data brokers to delete what they hold about you. Houdini writes the requests; you send them.</p>
+    <p class="note lede-note">Nothing you type leaves this page or is saved. Close the tab and it's gone.</p>
 
-  <h2>Start here</h2>
-  <ul>
-    <li><a href="https://privacy.ca.gov/drop/" target="_blank" rel="noopener">California DROP</a>: one request to every registered data broker (California residents).</li>
-    <li><a href="https://support.google.com/websearch/answer/12719076" target="_blank" rel="noopener">Google "Results about you"</a>: remove search results showing your phone, email, or address.</li>
-  </ul>
+    <h2>Start here</h2>
+    <ul class="start">
+      <li><a href="https://privacy.ca.gov/drop/" target="_blank" rel="noopener">California DROP</a>One request to every registered data broker (California residents).</li>
+      <li><a href="https://support.google.com/websearch/answer/12719076" target="_blank" rel="noopener">Google "Results about you"</a>Remove search results showing your phone, email, or address.</li>
+    </ul>
 
-  <h2>Your details</h2>
-  <label for="name">Full name</label>
-  <input id="name" type="text">
-  <label for="email">Email</label>
-  <input id="email" type="email">
-  <label for="phone">Phone</label>
-  <input id="phone" type="tel">
-  <label for="place">City, State</label>
-  <input id="place" type="text">
-  <label><input id="ca" type="checkbox"> I live in California</label>
-  <p><button id="make">Make my requests</button></p>
+    <h2>Your details</h2>
+    <div class="file">
+      <div class="f wide"><label for="name">Full name</label><input id="name" type="text"></div>
+      <div class="f"><label for="email">Email</label><input id="email" type="email"></div>
+      <div class="f"><label for="phone">Phone</label><input id="phone" type="tel"></div>
+      <div class="f wide"><label for="place">City, State</label><input id="place" type="text"></div>
+      <div class="wide"><label class="check"><input id="ca" type="checkbox"> I live in California</label></div>
+      <p class="wide"><button id="make">Make my requests</button></p>
+    </div>
 
-  <h2>Brokers</h2>
-  <p class="note">Email brokers open your mail app with the request filled in. Form brokers open their own opt-out page.</p>
-  <ul id="list"></ul>
+    <h2>Brokers</h2>
+    <p class="note">Email brokers open your mail app with the request filled in. Form brokers open their own opt-out page.</p>
+    <ul id="list"></ul>
 
-  <p class="note">Broker list from the <a href="https://cppa.ca.gov/data_broker_registry/" target="_blank" rel="noopener">California Data Broker Registry</a> (2026). Not legal advice.</p>
-
+    <footer class="note">Broker list from the <a href="https://cppa.ca.gov/data_broker_registry/" target="_blank" rel="noopener">California Data Broker Registry</a> (2026). Not legal advice.</footer>
+  </main>
   <script type="module" src="houdini.js"></script>
 </body>
 </html>
