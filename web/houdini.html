@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self'; connect-src 'self'; style-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <link rel="icon" href="data:,">
+  <title>Houdini · Fauve</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+    label { display: block; margin: .6rem 0 .2rem; }
+    input[type=text], input[type=email], input[type=tel] { width: 100%; box-sizing: border-box; padding: .4rem; }
+    .note { color: #555; font-size: .9rem; }
+    #list li { margin: .3rem 0; }
+  </style>
+</head>
+<body>
+  <h1>Houdini</h1>
+  <p>Ask data brokers to delete what they hold about you. Houdini writes the requests; you send them.</p>
+  <p class="note">Nothing you type leaves this page or is saved. Close the tab and it's gone.</p>
+
+  <h2>Start here</h2>
+  <ul>
+    <li><a href="https://privacy.ca.gov/drop/" target="_blank" rel="noopener">California DROP</a>: one request to every registered data broker (California residents).</li>
+    <li><a href="https://support.google.com/websearch/answer/12719076" target="_blank" rel="noopener">Google "Results about you"</a>: remove search results showing your phone, email, or address.</li>
+  </ul>
+
+  <h2>Your details</h2>
+  <label for="name">Full name</label>
+  <input id="name" type="text">
+  <label for="email">Email</label>
+  <input id="email" type="email">
+  <label for="phone">Phone</label>
+  <input id="phone" type="tel">
+  <label for="place">City, State</label>
+  <input id="place" type="text">
+  <label><input id="ca" type="checkbox"> I live in California</label>
+  <p><button id="make">Make my requests</button></p>
+
+  <h2>Brokers</h2>
+  <p class="note">Email brokers open your mail app with the request filled in. Form brokers open their own opt-out page.</p>
+  <ul id="list"></ul>
+
+  <p class="note">Broker list from the <a href="https://cppa.ca.gov/data_broker_registry/" target="_blank" rel="noopener">California Data Broker Registry</a> (2026). Not legal advice.</p>
+
+  <script type="module" src="houdini.js"></script>
+</body>
+</html>
