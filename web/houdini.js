@@ -66,10 +66,15 @@ makeBtn.addEventListener("click", () => {
     const row = document.createElement("li");
     const link = document.createElement("a");
     link.textContent = b.name;
+    row.append(link);
     if (b.type === "email") {
       link.href = "mailto:" + b.email
         + "?subject=" + encodeURIComponent(fill(subject, b))               // the filled subject, encoded
         + "&body=" + encodeURIComponent(fill(body, b));                 // the filled body, encoded
+        const copy = document.createElement("button");
+        row.append(copy);
+  	copy.textContent = "Copy";
+  	copy.onclick = () => navigator.clipboard.writeText("To: " + b.email + "\nSubject: " + fill(subject, b) + "\n\n" + fill(body, b)).then(() => { copy.textContent = "Copied"; });
     } else {
       const u = safeUrl(b.rights_url);
       if (!u) continue;                   // skip anything that isn't a web link
@@ -77,7 +82,8 @@ makeBtn.addEventListener("click", () => {
       link.target ="_blank";
       link.rel = "noopener";
   	}
-  	row.append(link);
+  	
+
   	list.append(row);
   }
 });
