@@ -43,7 +43,7 @@ const makeBtn = document.getElementById("make");
 const list = document.getElementById("list");
 
 const sent = {};                                   // broker name → "YYYY-MM-DD", in memory only
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => new Date().toLocaleDateString("en-CA");
 
 const dlBtn = document.getElementById("dl");
 const loadInput = document.getElementById("load");
