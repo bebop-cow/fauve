@@ -45,6 +45,10 @@ const list = document.getElementById("list");
 const sent = {};                                   // broker name → "YYYY-MM-DD", in memory only
 const today = () => new Date().toISOString().slice(0, 10);
 
+const dlBtn = document.getElementById("dl");
+const loadInput = document.getElementById("load");
+const statusList = document.getElementById("status");
+
 // Replace each {slot} in a template with the user's value.
 function fill(template, broker) {
   return template
@@ -92,10 +96,10 @@ makeBtn.addEventListener("click", () => {
   
   	list.append(row);
   }
-}
+});
 
 dlBtn.onclick = () => {
-  const blob = new Blob([a download="houdini-tracker.json"], { type: "application/json" });   // `sent` as JSON text
+  const blob = new Blob([JSON.stringify(sent)], { type: "application/json" });   // `sent` as JSON text
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = "houdini-tracker.json";
@@ -105,12 +109,18 @@ dlBtn.onclick = () => {
 
 // Load: read the file back and flag overdue brokers.
 loadInput.onchange = async () => {
-  const data = JSON.parse(await loadInput.files[0].___());     // read the file as text
-  status.textContent = "";
-  for (const [name, date] of Object.entries(data)) {
-    if (!brokers.some(x => x.name === name)) continue;         // ignore unknown names
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;            // ignore anything not a date
-    const days = (Date.now() - new Date(date)) / 86400000;
-    const line = document.createElement("li");
-    line.textContent = ___;                                     // e.g. "Spokeo: sent 2026-10-18 – overdue, send a follow-up" or "…waiting (12 days)"
-    status.append(line);
+  try {
+    const data = JSON.parse(await loadInput.files[0].text());
+    statusList.textContent = "";
+    for (const [name, date] of Object.entries(data)) {
+      if (!brokers.some(x => x.name === name)) continue;        // only known brokers
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;          // only real dates
+      const days = (Date.now() - new Date(date)) / 86400000;
+      const line = document.createElement("li");
+      line.textContent = name + ": sent " + date + " – " + (days > 45 ? "overdue, send a follow-up" : "waiting (" + Math.floor(days) + " days)");
+      statusList.append(line);
+    }
+  } catch {
+    statusList.textContent = "Couldn't read that file.";
+  }
+};
