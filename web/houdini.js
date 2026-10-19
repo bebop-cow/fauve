@@ -1,3 +1,4 @@
+
 const CA_SUBJECT = "CCPA request to delete and opt out – {name}";
 const CA_BODY = `To {broker}:
 
@@ -41,6 +42,9 @@ const caBox = document.getElementById("ca");          // checkbox
 const makeBtn = document.getElementById("make");
 const list = document.getElementById("list");
 
+const sent = {};                                   // broker name → "YYYY-MM-DD", in memory only
+const today = () => new Date().toISOString().slice(0, 10);
+
 // Replace each {slot} in a template with the user's value.
 function fill(template, broker) {
   return template
@@ -62,11 +66,14 @@ makeBtn.addEventListener("click", () => {
   const subject = caBox.checked ? CA_SUBJECT : GEN_SUBJECT;
   const body = caBox.checked ? CA_BODY : GEN_BODY;
 
+  if (!nameBox.value.trim() || !emailBox.value.trim()) { list.textContent = "Enter at least your name and email."; return; }
+
   for (const b of brokers) {
     const row = document.createElement("li");
     const link = document.createElement("a");
     link.textContent = b.name;
     row.append(link);
+    link.addEventListener("click", () => { sent[b.name] = today(); });
     if (b.type === "email") {
       link.href = "mailto:" + b.email
         + "?subject=" + encodeURIComponent(fill(subject, b))               // the filled subject, encoded
@@ -74,7 +81,7 @@ makeBtn.addEventListener("click", () => {
         const copy = document.createElement("button");
         row.append(copy);
   	copy.textContent = "Copy";
-  	copy.onclick = () => navigator.clipboard.writeText("To: " + b.email + "\nSubject: " + fill(subject, b) + "\n\n" + fill(body, b)).then(() => { copy.textContent = "Copied"; });
+  	copy.onclick = () => navigator.clipboard.writeText("To: " + b.email + "\nSubject: " + fill(subject, b) + "\n\n" + fill(body, b)).then(() => { copy.textContent = "Copied"; sent[b.name] = today(); });
     } else {
       const u = safeUrl(b.rights_url);
       if (!u) continue;                   // skip anything that isn't a web link
@@ -82,8 +89,28 @@ makeBtn.addEventListener("click", () => {
       link.target ="_blank";
       link.rel = "noopener";
   	}
-  	
-
+  
   	list.append(row);
   }
-});
+}
+
+dlBtn.onclick = () => {
+  const blob = new Blob([a download="houdini-tracker.json"], { type: "application/json" });   // `sent` as JSON text
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "houdini-tracker.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+// Load: read the file back and flag overdue brokers.
+loadInput.onchange = async () => {
+  const data = JSON.parse(await loadInput.files[0].___());     // read the file as text
+  status.textContent = "";
+  for (const [name, date] of Object.entries(data)) {
+    if (!brokers.some(x => x.name === name)) continue;         // ignore unknown names
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;            // ignore anything not a date
+    const days = (Date.now() - new Date(date)) / 86400000;
+    const line = document.createElement("li");
+    line.textContent = ___;                                     // e.g. "Spokeo: sent 2026-10-18 – overdue, send a follow-up" or "…waiting (12 days)"
+    status.append(line);

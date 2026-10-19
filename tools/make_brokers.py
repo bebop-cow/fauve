@@ -25,6 +25,7 @@ LABEL = {
     "bryce@peoplefindersdaas.com": "PeopleFinders DaaS",
     "jmatthes@spokeo.com": "Spokeo",
 }
+URL_FIX = {"support@nuwber.com": "https://nuwber.com/", "ca_drop_tapad@experian.com": "https://tapad.com/"}
 
 rows = csv.DictReader(open(sys.argv[1], encoding="utf-8-sig"))
 brokers = []
@@ -39,7 +40,7 @@ for row in rows:
     brokers.append({
         "name": LABEL.get(email.lower(),row[NAME]),
         "email": email,
-        "rights_url": row[RIGHTS].split(";")[0].strip(),                     # first URL if the cell has several split by ";"
+        "rights_url": URL_FIX.get(email.lower(),row[RIGHTS].split(";")[0].strip()),                     # first URL if the cell has several split by ";"
         "type": "email" if email.lower().startswith(("privacy@", "legal@", "usprivacy@", "askprivacy@", "privacyinfo@")) else "form",    # email starts with privacy@, legal@, usprivacy@ ...
     })
 json.dump(brokers, open("web/brokers.json", "w"), indent=2)
