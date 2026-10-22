@@ -1,13 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Fauve Houdini",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Fills data broker opt-out forms locally. You click submit.",
-  "permissions": ["storage", "scripting"],
-  "host_permissions": [
-    "https://www.spokeo.com/*",
-    "https://www.peoplefinders.com/*",
-    "https://suppression.peopleconnect.us/*"
-  ],
+  "permissions": ["storage", "scripting", "activeTab"],
   "action": { "default_popup": "popup.html" }
 }

@@ -13,5 +13,16 @@
       "Pick the record that's you",
       "Set Desired Behavior to Suppressed and click Save"
     ]
-  }
+  },
+  "spokeo": {
+  "label": "Spokeo",
+  "host": "www.spokeo.com",
+  "fields": { "input[name=\"email\"][type=\"email\"]": "email" },
+  "manual": [
+    "Search spokeo.com for your name and open your listing",
+    "Copy the listing's URL from the address bar and paste it into the URL box",
+    "Tick the CAPTCHA and click OPT OUT yourself",
+    "Click the confirmation link Spokeo emails you"
+  ]
+}
 }

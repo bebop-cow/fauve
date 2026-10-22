@@ -34,8 +34,10 @@ function fillPage(fields, values) {
   for (const [selector, slot] of Object.entries(fields)) {
     const el = document.querySelector(selector);
     if (!el || el.disabled || el.readOnly) continue;   // missing or locked field: skip it
-    setValue.call(el, values[slot] ?? "");
-    el.dispatchEvent(new Event("input", { bubbles: true }));  // tell the page's code the value changed
+    const v = values[slot];
+    if (!v) continue;                                 // nothing to put here: leave the field alone
+    setValue.call(el, v);
+    el.dispatchEvent(new Event("input", { bubbles: true }));
     filled++;
   }
   return filled;
@@ -52,7 +54,7 @@ document.getElementById("fill").onclick = async () => {
   const [{ result }] = await chrome.scripting.executeScript({
     target: { tabId: tab.id },
     func: fillPage,
-    args: [recipe.fields, name]
+    args: [recipe.fields, { ...name, email: document.getElementById("email").value }]
   });
   msg.textContent = "Filled " + result + " field(s). Check them, then continue yourself:\n• " + recipe.manual.join("\n• ");
 };
