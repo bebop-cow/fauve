@@ -17,7 +17,7 @@ document.getElementById("save").onclick = async () => {
 
 const recipes = await (await fetch(chrome.runtime.getURL("recipes.json"))).json();
 
-// "Tyrone A B Fernandes" → { first: "Tyrone", middle: "A B", last: "Fernandes" }
+
 function splitName(full) {
   const parts = full.trim().split(/\s+/);
   return {
@@ -48,6 +48,7 @@ document.getElementById("fill").onclick = async () => {
   if (!recipe) { msg.textContent = "Houdini doesn't support this page."; return; }
 
   const name = splitName(document.getElementById("name").value);
+  if (!name.first) { msg.textContent = "Enter your name first."; return; }
   const [{ result }] = await chrome.scripting.executeScript({
     target: { tabId: tab.id },
     func: fillPage,
