@@ -1,0 +1,17 @@
+{
+  "peopleconnect": {
+    "label": "Instant Checkmate & TruthFinder",
+    "host": "suppression.peopleconnect.us",
+    "fields": {
+      "input[name=\"name-0-first\"]": "first",
+      "input[name=\"name-0-middle\"]": "middle",
+      "input[name=\"name-0-last\"]": "last"
+    },
+    "manual": [
+      "Log in with your email yourself",
+      "Enter your birthdate yourself (it can't be changed later)",
+      "Pick the record that's you",
+      "Set Desired Behavior to Suppressed and click Save"
+    ]
+  }
+}
