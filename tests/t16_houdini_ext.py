@@ -44,7 +44,7 @@ def grab(name):
         if depth == 0:
             return src[start:i]
 
-funcs = grab("splitName") + "\n" + grab("fillPage")
+funcs = grab("splitName") + "\n" + grab("fillPage") + "\n" + grab("autoFill")
 
 # Fake broker pages. Each records 'input' events the way a React page would,
 # and records any click or submit so we can prove Houdini never does either.
@@ -71,6 +71,19 @@ SPOKEO = SPY + """
 
 FAKE = {"first": "Testy", "middle": "", "last": "McTest", "email": "fake@example.com"}
 
+UNKNOWN = SPY + """
+<form>
+  <label>First name <input name="fname"></label>
+  <label>Last name <input name="lname"></label>
+  <input type="email" placeholder="Your email">
+  <input type="tel" name="contact">
+  <label>Name <input name="who"></label>
+  <input type="email" name="trap" style="display:none">
+  <input type="search" name="q" placeholder="Search people by email">
+  <input name="first_name_2" value="ALREADY">
+  <button type="submit">Send</button>
+</form>"""
+
 with sync_playwright() as p:
     browser = p.chromium.launch()
     page = browser.new_page()
@@ -81,8 +94,8 @@ with sync_playwright() as p:
         err = page.evaluate("""code => {
             try { (0, eval)(code); }
             catch (e) { return String(e); }
-            return (typeof splitName === 'function' && typeof fillPage === 'function')
-                ? '' : 'splitName or fillPage missing after loading';
+            return (typeof splitName === 'function' && typeof fillPage === 'function' && typeof autoFill === 'function')
+       ? '' : 'splitName, fillPage or autoFill missing after loading';
         }""", funcs)
         if err:
             print("FAIL\n  could not load the functions from popup.js:", err)
@@ -150,6 +163,19 @@ with sync_playwright() as p:
     if page.input_value('input[type="search"]') or page.input_value('input[name="url"]'):
         problems.append("K: filled the search box or the URL box")
 
+    # N: autoFill fills the clear fields and leaves everything doubtful alone
+    load(UNKNOWN)
+    n = page.evaluate("v => autoFill(v)", {**FAKE, "phone": "555-0100"})
+    got = lambda sel: page.input_value(sel)
+    if (got('[name="fname"]'), got('[name="lname"]'), got('[placeholder="Your email"]'), got('[name="contact"]')) != ("Testy", "McTest", "fake@example.com", "555-0100"):
+        problems.append("N: autoFill missed a clear field")
+    if got('[name="who"]') or got('[name="trap"]') or got('[name="q"]'):
+        problems.append("N: autoFill filled an ambiguous, hidden or search field")
+    if got('[name="first_name_2"]') != "ALREADY":
+        problems.append("N: autoFill overwrote an existing value")
+    if n != 4 or page.evaluate("window.clicked || window.submitted"):
+        problems.append(f"N: count {n} (want 4), or it clicked/submitted")
+
     browser.close()
 
 # L: recipe lookup is an exact host match
@@ -162,8 +188,8 @@ for bad in ("suppression.peopleconnect.us.evil.com", "www.instantcheckmate.com",
         problems.append(f"L: matched look-alike host {bad}")
 # M: the popup passes the name parts flat ({ ...name, email }), not nested ({ name, email }).
 #    Nested values make fillPage find nothing and report "Filled 0".
-if not re.search(r"args:\s*\[\s*recipe\.fields\s*,\s*\{\s*\.\.\.name\s*,", src):
-    problems.append("M: popup.js passes { name, ... } instead of { ...name, ... } to fillPage")
+    if not re.search(r"\{\s*\.\.\.name\s*,", src) or "args: [recipe.fields, values]" not in src:
+       problems.append("M: popup.js must build values as { ...name, ... } and pass them to fillPage")
 # the popup must use === for the host, not includes()
 if "r.host === host" not in src:
     problems.append("L: popup.js no longer uses an exact host match")

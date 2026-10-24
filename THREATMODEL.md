@@ -189,6 +189,12 @@ Notes
 - Brokers may ask for identity verification. Houdini cannot complete that for the user.
 - The tracker file is saved on the user's computer, outside Fauve's control. It holds only broker names and dates.
 - Request templates are not legal advice.
+- The extension uses activeTab, with no standing site access.
+- It fills only and never clicks or submits.
+- Unknown sites need a second, confirming click.
+- It skips hidden, password, search and locked fields, and never overwrites.
+- Filled fields are highlighted.
+- It’s covered by T16 (checks A–N).
 
 ### Sanitizer (v1, rules-based)
 
