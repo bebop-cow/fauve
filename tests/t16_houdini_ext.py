@@ -185,6 +185,11 @@ with sync_playwright() as p:
     if page.evaluate("v => autoFill(v)", FAKE) != 0:
         problems.append("O: autoFill filled a search form")
 
+    # P: forms with no action attribute still work
+    load(SPY + '<form><label>Email <input type="email"></label></form>')
+    if page.evaluate("v => autoFill(v)", FAKE) != 1:
+       problems.append("P: autoFill failed on a form without an action")
+
     browser.close()
 
 # L: recipe lookup is an exact host match

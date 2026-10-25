@@ -65,7 +65,7 @@ function autoFill(values) {
     const form = el.closest("form, [role=search]");
     if (!form) return false;
     if (form.getAttribute("role") === "search") return true;                                  // the form's role attribute is "search"
-    if (form.getAttribute("action" || "").toLowerCase().includes("search")) return true;                                  // the form's action contains "search"
+    if ((form.getAttribute("action") || "").toLowerCase().includes("search")) return true;                                  // the form's action contains "search"
     const buttons = form.querySelectorAll("button, input[type=submit]");
     return [...buttons].some(b => (b.textContent + " " + b.value).toLowerCase().includes("search"));                    // the button's text or value, lowercased, includes "search"
   }
@@ -106,6 +106,11 @@ document.getElementById("fill").onclick = async () => {
   const recipe = Object.values(recipes).find(r => r.host === host);
 
   if (!recipe) {
+    const path = new URL(tab.url).pathname.toLowerCase();
+    if (!/opt.?out|remov|suppress|privacy|delete|do-not-sell|request/.test(path)) {
+      msg.textContent = "This doesn't look like an opt-out page, so Houdini won't auto-fill here.";
+      return;
+    }
     if (pendingHost !== host) {               // first click on this site: warn only
       pendingHost = host;
       msg.textContent = host + " isn't a known data broker. Check the address, then click Fill again to fill it anyway.";
