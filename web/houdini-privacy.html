@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self'; connect-src 'self'; style-src 'unsafe-inline'; img-src 'self' data:; font-src 'self'; base-uri 'none'; form-action 'none'">
+  <link rel="icon" href="assets/houdinifavicon.png">
+  <title>Privacy policy · Houdini · Fauve</title>
+  <style>
+    @font-face{font-family:'Josefin Sans';font-weight:300;font-style:normal;font-display:swap;src:url(assets/fonts/josefin-sans-latin-300-normal.woff2) format('woff2')}
+    @font-face{font-family:'Courier Prime';font-weight:400;font-style:normal;font-display:swap;src:url(assets/fonts/courier-prime-latin-400-normal.woff2) format('woff2')}
+    @font-face{font-family:'Courier Prime';font-weight:700;font-style:normal;font-display:swap;src:url(assets/fonts/courier-prime-latin-700-normal.woff2) format('woff2')}
+    @font-face{font-family:'Libre Franklin';font-weight:400;font-style:normal;font-display:swap;src:url(assets/fonts/libre-franklin-latin-400-normal.woff2) format('woff2')}
+    @font-face{font-family:'Libre Franklin';font-weight:600;font-style:normal;font-display:swap;src:url(assets/fonts/libre-franklin-latin-600-normal.woff2) format('woff2')}
+    :root {
+      --bg:#0b1228; --panel:#141d3d; --well:#101833; --ink:#f3e9d2; --muted:#aeb4cc;
+      --gold:#ddb13c; --red:#cc2a18; --line:rgba(243,233,210,.16);
+      --display:"Josefin Sans", "Futura", "Century Gothic", "Avenir Next", sans-serif;
+      --label:"Courier Prime", "Courier New", ui-monospace, monospace;
+      --body:"Libre Franklin", "Helvetica Neue", system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing:border-box; }
+    html, body { margin:0; }
+    body { background:var(--bg); color:var(--ink); font:15px/1.6 var(--body); }
+    a { color:var(--gold); text-underline-offset:3px; overflow-wrap:anywhere; }
+    a:hover { color:var(--ink); }
+
+    .hero {
+      position:relative; height:min(40vh, 380px); min-height:240px;
+      background:#0b1228 url("assets/houdini-maze.png") center 30%/cover no-repeat;
+      border-bottom:1px solid var(--line);
+    }
+    .hero::after { content:""; position:absolute; inset:auto 0 0 0; height:65%;
+      background:linear-gradient(to bottom, rgba(11,18,40,0), rgba(11,18,40,.94)); }
+    .hero-text { position:absolute; z-index:1; left:0; right:0; bottom:0;
+      max-width:46rem; margin:0 auto; padding:0 1.5rem 1.6rem; }
+    .kicker { font:700 11px/1 var(--label); letter-spacing:.16em; text-transform:uppercase; color:var(--gold); margin:0 0 .7rem; }
+    h1 { font:300 clamp(40px, 7vw, 72px)/.95 var(--display); letter-spacing:.01em; margin:0; }
+
+    main { max-width:46rem; margin:0 auto; padding:2rem 1.5rem 4rem; display:flex; flex-direction:column; gap:1rem; }
+    main p { margin:0; text-wrap:pretty; }
+    .lede { font-size:18px; line-height:1.55; }
+    .note { color:var(--muted); font:13px/1.55 var(--label); margin:0; }
+    strong { font-weight:600; }
+
+    h2 { font:700 12px/1 var(--label); letter-spacing:.16em; text-transform:uppercase; color:var(--gold);
+      margin:1.6rem 0 0; display:flex; align-items:center; gap:.8rem; }
+    h2::after { content:""; flex:1; height:1px; background:var(--line); }
+
+    .perms { list-style:none; padding:0; margin:0; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--panel); }
+    .perms li { padding:.85rem 1.1rem; border-top:1px solid var(--line); display:grid; grid-template-columns:8.5rem minmax(0,1fr); gap:.3rem 1rem; color:var(--muted); }
+    .perms li:first-child { border-top:0; }
+    .perms li:nth-child(even) { background:var(--well); }
+    .perms code { font:700 13px/1.6 var(--label); color:var(--ink); }
+
+    .never { padding:.9rem 1.1rem; background:var(--well); border:1.5px solid var(--gold); border-radius:12px; font-weight:600; }
+
+    footer.note { margin-top:1.6rem; padding-top:1rem; border-top:1px solid var(--line); }
+    @media (max-width:560px) {
+      .hero { height:32vh; }
+      .perms li { grid-template-columns:minmax(0,1fr); }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="hero">
+    <div class="hero-text">
+      <p class="kicker">Houdini · Privacy policy</p>
+      <h1>Nothing up our sleeve.</h1>
+    </div>
+  </header>
+
+  <main>
+    <p class="note">Last updated: October 2026</p>
+
+    <h2>What Houdini collects</h2>
+    <p class="lede"><strong>Nothing.</strong> It has no server, no account, no analytics, and no tracking.</p>
+
+    <h2>What it stores</h2>
+    <p>The name, email, phone and city you type into the popup, kept in your browser's session memory (<code class="note">storage.session</code>) only. It is erased when you close the browser. Nothing is written to disk by Houdini.</p>
+
+    <h2>What it sends</h2>
+    <p><strong>Nothing.</strong> Houdini makes no network requests. It only types your own details into a form on the page you're viewing, when you click Fill. You decide whether to submit that form to the website.</p>
+
+    <h2>Permissions and why</h2>
+    <ul class="perms">
+      <li><code>activeTab</code><span>To fill the page you're on, only when you click the extension, and only that tab.</span></li>
+      <li><code>scripting</code><span>To type your details into that page's form fields.</span></li>
+      <li><code>storage</code><span>To remember your details until you close the browser.</span></li>
+    </ul>
+
+    <p class="never">Houdini never clicks, submits, or logs in for you.</p>
+
+    <footer class="note">
+      Source code: <a href="https://github.com/bebop-cow/fauve">github.com/bebop-cow/fauve</a><br>
+      Contact: <a href="https://github.com/bebop-cow/fauve/issues">Github Issues</a>
+    </footer>
+  </main>
+</body>
+</html>
