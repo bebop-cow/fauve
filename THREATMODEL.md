@@ -194,7 +194,23 @@ Notes
 - Unknown sites need a second, confirming click.
 - It skips hidden, password, search and locked fields, and never overwrites.
 - Filled fields are highlighted.
-- It’s covered by T16 (checks A–N).
+
+## Houdini 2.0 (browser extension, in development)
+
+Fills data broker opt-out forms in the user's own browser. The user always submits.
+
+- Permissions: `storage`, `scripting`, `activeTab` only. No host permissions: the extension can touch a tab only when the user clicks it, and only that tab.
+- Details are kept in `chrome.storage.session` (memory only, gone when the browser closes).
+- Known brokers use recipes: exact-host match, stable selectors (`name` attributes, never generated classes or IDs).
+- Other pages use the field finder, which only runs if the URL looks like an opt-out page, and only after a second confirming click on an unknown site.
+- Never clicks, never submits, never logs in. Login, birthdate, record choice, CAPTCHAs and email confirmation stay manual.
+- Skips hidden, password, search, disabled and read-only fields and people-search forms; never overwrites a value; outlines every field it fills.
+- Tested by T16 (checks A–P) on local fake pages with fake data; every check confirmed by a positive control.
+
+Residual risks:
+- The field finder can still misjudge a field; the user must check every outlined field before submitting.
+- A malicious page could label fields to attract the user's details. The opt-out-path check and the confirm click reduce this but don't remove it.
+- Recipes break silently when a broker changes its form; T16 can't see live sites.
 
 ### Sanitizer (v1, rules-based)
 
