@@ -61,11 +61,21 @@ function autoFill(values) {
     return null;
   }
 
+  function looksLikeSearch(el) {
+    const form = el.closest("form, [role=search]");
+    if (!form) return false;
+    if (form.getAttribute("role") === "search") return true;                                  // the form's role attribute is "search"
+    if (form.getAttribute("action" || "").toLowerCase().includes("search")) return true;                                  // the form's action contains "search"
+    const buttons = form.querySelectorAll("button, input[type=submit]");
+    return [...buttons].some(b => (b.textContent + " " + b.value).toLowerCase().includes("search"));                    // the button's text or value, lowercased, includes "search"
+  }
+
   const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set;
   const SKIP = ["hidden", "password", "search", "checkbox", "radio", "submit", "button", "file"];
   let filled = 0;
   for (const el of document.querySelectorAll("input")) {
     if (SKIP.includes(el.type) || el.disabled || el.readOnly) continue;
+    if (looksLikeSearch(el)) continue;
     if (el.offsetParent === null) continue;   // invisible: could be a bot trap
     if (el.value) continue;                   // never overwrite what's there
     const slot = guessSlot(el);

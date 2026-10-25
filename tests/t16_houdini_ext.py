@@ -72,7 +72,7 @@ SPOKEO = SPY + """
 FAKE = {"first": "Testy", "middle": "", "last": "McTest", "email": "fake@example.com"}
 
 UNKNOWN = SPY + """
-<form>
+<form action="/opt-out">
   <label>First name <input name="fname"></label>
   <label>Last name <input name="lname"></label>
   <input type="email" placeholder="Your email">
@@ -83,6 +83,10 @@ UNKNOWN = SPY + """
   <input name="first_name_2" value="ALREADY">
   <button type="submit">Send</button>
 </form>"""
+
+SEARCHFORM = SPY + """
+<form action="/search"><input placeholder="First Name"><input placeholder="Last Name">
+<button type="submit">Search</button></form>"""
 
 with sync_playwright() as p:
     browser = p.chromium.launch()
@@ -176,6 +180,11 @@ with sync_playwright() as p:
     if n != 4 or page.evaluate("window.clicked || window.submitted"):
         problems.append(f"N: count {n} (want 4), or it clicked/submitted")
 
+    # O: autoFill never fills a people-search form
+    load(SEARCHFORM)
+    if page.evaluate("v => autoFill(v)", FAKE) != 0:
+        problems.append("O: autoFill filled a search form")
+
     browser.close()
 
 # L: recipe lookup is an exact host match
@@ -186,13 +195,15 @@ if find("suppression.peopleconnect.us") != ["peopleconnect"]:
 for bad in ("suppression.peopleconnect.us.evil.com", "www.instantcheckmate.com", "spokeo.com.evil.com"):
     if find(bad):
         problems.append(f"L: matched look-alike host {bad}")
+
 # M: the popup passes the name parts flat ({ ...name, email }), not nested ({ name, email }).
 #    Nested values make fillPage find nothing and report "Filled 0".
-    if not re.search(r"\{\s*\.\.\.name\s*,", src) or "args: [recipe.fields, values]" not in src:
+if not re.search(r"\{\s*\.\.\.name\s*,", src) or "args: [recipe.fields, values]" not in src:
        problems.append("M: popup.js must build values as { ...name, ... } and pass them to fillPage")
 # the popup must use === for the host, not includes()
 if "r.host === host" not in src:
     problems.append("L: popup.js no longer uses an exact host match")
+
 
 if problems:
     print("FAIL"); [print(" ", p) for p in problems]; sys.exit(1)
