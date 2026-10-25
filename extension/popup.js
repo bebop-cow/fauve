@@ -93,6 +93,7 @@ let pendingHost = "";   // an unknown site the user was warned about once
 
 document.getElementById("fill").onclick = async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab.url) { msg.textContent = "Houdini can't read this tab's address."; return; }
   const host = tab.url ? new URL(tab.url).hostname : "";
 
   const name = splitName(document.getElementById("name").value);
@@ -126,5 +127,9 @@ document.getElementById("fill").onclick = async () => {
   const [{ result }] = await chrome.scripting.executeScript({
     target: { tabId: tab.id }, func: fillPage, args: [recipe.fields, values]
   });
+  if (result === 0) {
+    msg.textContent = "Nothing for Houdini to fill on this step. Do it yourself, then click Fill again on the next page.\nSteps:\n• " + recipe.manual.join("\n• ");
+    return;
+  }
   msg.textContent = "Filled " + result + " field(s). Check them, then continue yourself:\n• " + recipe.manual.join("\n• ");
 };
