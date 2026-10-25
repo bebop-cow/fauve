@@ -1,8 +1,15 @@
 {
   "manifest_version": 3,
   "name": "Fauve Houdini",
-  "version": "0.1.4",
+  "version": "0.1.6",
   "description": "Fills data broker opt-out forms locally. You click submit.",
   "permissions": ["storage", "scripting", "activeTab"],
-  "action": { "default_popup": "popup.html" }
+  "action": { "default_popup": "popup.html" },
+  "icons": { "16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png" },
+     "browser_specific_settings": {
+     "gecko": {
+       "id": "houdini@fauve",
+       "data_collection_permissions": { "required": ["none"] }
+     }
+   }
 }
