@@ -93,9 +93,9 @@ footer div{display:flex;gap:20px}footer a{color:#f3e9d2}footer a:hover{color:#dd
   <div class="hero-copy px">
     <div class="tag mono"><span class="day">DAY SHIFT</span><span class="night">NIGHT SHIFT</span> · <span id="time"></span></div>
     <h1 class="slab">The agent that answers only to you.</h1>
-    <p class="lede">Fauve is an open-source, privacy-first AI agent, now in early alpha. It is built to read your email as untrusted data and to only search and draft: it never sends, pays or stores passwords.</p>
+    <p class="lede">Fauve is an open-source, privacy-first AI agent, now in early alpha. It is built to read your email as untrusted data and to only read and draft: it never sends, pays or stores passwords.</p>
     <div class="ctas">
-      <a class="btn" href="web/houdini.html">Houdini</a>
+      <a class="btn" href="web/houdini.html">Delete your data (Houdini)</a>
       <a class="btn" href="web/chat.html">Try the alpha</a>
       <a class="btn2" href="https://github.com/bebop-cow/fauve/blob/HEAD/THREATMODEL.md">Read the threat model</a>
     </div>
@@ -103,14 +103,14 @@ footer div{display:flex;gap:20px}footer a{color:#f3e9d2}footer a:hover{color:#dd
   <div class="art">
     <div class="status">
       <div class="slab" style="font-size:24px"><span class="day">Morning edition.</span><span class="night">On the case.</span></div>
-      <div class="mono" style="font-weight:400;font-size:13px;color:var(--muted)">● Alpha · T1–T12 tests passing · no tracking</div>
+      <div class="mono" style="font-weight:400;font-size:13px;color:var(--muted)">● Alpha · T1–T16 tests passing · no tracking</div>
     </div>
   </div>
 </section>
 
 <section class="grid features" id="security">
-  <div class="feat"><div class="mono">01 · UNTRUSTED BY DEFAULT</div><h3 class="slab">Emails are data, not orders.</h3><p>Hidden text, tracking images and look-alike instructions are stripped and labeled before a model reads anything. Warnings come from Fauve, never from the model.</p></div>
-  <div class="feat" id="models"><div class="mono">02 · ON YOUR DEVICE</div><h3 class="slab">Built to keep your data local.</h3><p>The alpha is designed to run in your browser with a small open model, so there is nothing to upload. A cloud model, if one is ever added, will be opt-in.</p></div>
+  <div class="feat"><div class="mono">01 · UNTRUSTED BY DEFAULT</div><h3 class="slab">Emails are data, not orders.</h3><p>Hidden text and tracking images are stripped, and every email is labeled untrusted before a model reads it. Drafts are checked before you see them. Warnings come from Fauve, never from the model</p></div>
+  <div class="feat" id="models"><div class="mono">02 · ON YOUR DEVICE</div><h3 class="slab">Built to keep your data local.</h3><p>TThe chat alpha runs a small open model in your browser, so your emails aren’t uploaded. The first run downloads about 1.7 GB of model files and needs a desktop browser with WebGPU. A cloud model, if one is ever added, will be opt-in</p></div>
   <div class="feat"><div class="mono">03 · OPEN SOURCE</div><h3 class="slab">Read every line of code.</h3><p>On GitHub with a public threat model that lists what is covered and what is not. No analytics, and this page loads nothing from third parties.</p></div>
 </section>
 
@@ -131,7 +131,7 @@ footer div{display:flex;gap:20px}footer a{color:#f3e9d2}footer a:hover{color:#dd
   <div class="art2"></div>
   <div class="close-copy px">
     <h2 class="slab">Day shift or night shift.</h2>
-    <p>Fauve follows your clock: the paperboy covers the daytime and the detective takes the night. Free, open source and early. Read the threat model before you trust it.</p>
+    <p>Fauve follows your clock: the paperboy covers the daytime and the detective takes the night. Free, open source and early. Read the threat model before you trust it.Read the threat model before you trust it. A small model can still be fooled; Fauve limits what a fooled model can do</p>
     <div class="ctas">
       <a class="btn" href="web/chat.html">Try the alpha</a>
       <a class="btn2" href="https://github.com/bebop-cow/fauve">Star on GitHub ↗</a>
