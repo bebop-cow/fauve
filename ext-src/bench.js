@@ -2,9 +2,9 @@
 // Fake fields only. Runs on your own GPU; nothing is sent anywhere except the one-time model download.
 import { loadModel, askModel } from "./model.js";
 import { checkMapping } from "../extension/mapping.js";
-import { CreateMLCEngine, prebuiltAppConfig } from "@mlc-ai/web-llm";
 
-const MODELS = ["Qwen2.5-0.5B-Instruct-q4f16_1-MLC", "gemma3-1b-it-q4f16_1-MLC"];
+
+const MODELS = ["Qwen2.5-0.5B-Instruct-q4f16_1-MLC", "gemma3-1b-it-q4f16_1-MLC", "Qwen2.5-1.5B-Instruct-q4f16_1-MLC"];
 
 // Each group is one fake form. "want" is the right answer; the model never sees it.
 const GROUPS = [
