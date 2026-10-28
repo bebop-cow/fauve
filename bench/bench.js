@@ -27833,6 +27833,7 @@ for (const model of MODELS) {
     const fields = group.map((f) => ({ id: f.id, type: f.type, hint: f.hint }));
     const t = performance.now();
     const raw = await askModel(fields, model);
+    log2(`  raw: ${raw.slice(0, 200)}`);
     times.push(performance.now() - t);
     const got = checkMapping(fields, raw);
     for (const field of group) {

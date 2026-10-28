@@ -2,6 +2,7 @@
 // Fake fields only. Runs on your own GPU; nothing is sent anywhere except the one-time model download.
 import { loadModel, askModel } from "./model.js";
 import { checkMapping } from "../extension/mapping.js";
+import { CreateMLCEngine, prebuiltAppConfig } from "@mlc-ai/web-llm";
 
 const MODELS = ["Qwen2.5-0.5B-Instruct-q4f16_1-MLC", "gemma3-1b-it-q4f16_1-MLC"];
 
@@ -37,6 +38,7 @@ for (const model of MODELS) {
     const fields = group.map(f => ({ id: f.id, type: f.type, hint: f.hint }));   // no "want"
     const t = performance.now();
     const raw = await askModel(fields, model);
+    log(`  raw: ${raw.slice(0, 200)}`);
     times.push(performance.now() - t);
     const got = checkMapping(fields, raw);                                        // the extension's own gate
 
