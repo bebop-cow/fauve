@@ -1,0 +1,19 @@
+{
+  "name": "fauve",
+  "version": "1.0.0",
+  "description": "An open-source AI agent that can search, summarize, plan, and prepare drafts for you, but never sends, pays, or stores passwords.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@mlc-ai/web-llm": "0.2.86",
+    "esbuild": "0.28.2"
+  }
+}

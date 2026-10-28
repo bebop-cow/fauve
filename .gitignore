@@ -5,3 +5,4 @@ __pycache__/
 .venv/
 web-ext-artifacts/
 web/screenshots/
+node_modules/
