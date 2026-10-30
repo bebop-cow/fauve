@@ -27804,7 +27804,7 @@ function checkMapping(candidates, raw) {
 }
 
 // ext-src/bench.js
-var MODELS = ["Qwen2.5-0.5B-Instruct-q4f16_1-MLC", "gemma3-1b-it-q4f16_1-MLC"];
+var MODELS = ["Qwen2.5-0.5B-Instruct-q4f16_1-MLC", "gemma3-1b-it-q4f16_1-MLC", "Qwen2.5-1.5B-Instruct-q4f16_1-MLC"];
 var GROUPS = [
   [
     { id: "0", type: "text", hint: "Your surname", want: "last" },
