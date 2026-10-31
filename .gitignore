@@ -6,3 +6,4 @@ __pycache__/
 web-ext-artifacts/
 web/screenshots/
 node_modules/
+/tools/hints.csv
