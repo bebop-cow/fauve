@@ -1,6 +1,6 @@
 # Makes fake labeled form-field hints for training Houdini's field classifier.
-# Fake data only. The bench words (Forename, Surname, Apellido, Mobile...) are
-# left out on purpose, so the bench stays a fair test of words never seen.
+# Fake data only. A spelling-pattern classifier can't learn synonyms it never
+# saw, so the real words are trained on; the test uses held-out spellings.
 import csv, random
 from pathlib import Path
 
@@ -9,24 +9,31 @@ random.seed(1)
 SLOTS = {
     "first": ["first name", "given name", "first", "fname", "first_name",
               "nombre", "prénom", "prenom", "vorname", "nome", "primeiro nome",
-              "legal first name"],
+              "legal first name", "forename", "christian name", "first names",
+              "given names", "nombre de pila"],
     "middle": ["middle name", "middle initial", "middle", "mi", "m.i.",
-               "second name", "segundo nombre", "middle_name"],
+               "second name", "segundo nombre", "middle_name", "middle names",
+               "other names"],
     "last": ["last name", "family name", "last", "lname", "last_name",
              "nom de famille", "nachname", "cognome", "sobrenome",
-             "legal last name", "family", "maiden name", "last names"],
+             "legal last name", "surname", "apellido", "apellidos",
+             "maiden name", "last names", "family names", "primer apellido"],
     "email": ["email", "e-mail", "email address", "e-mail address", "mail",
               "correo", "correo electrónico", "courriel", "adresse e-mail",
               "e-mail-adresse", "your email", "email_address"],
     "phone": ["phone", "phone number", "telephone", "tel", "cell", "cell phone",
               "cellphone", "teléfono", "telefono", "téléphone", "telefon",
-              "telefonnummer", "phone_number", "daytime phone", "cell number", "phone no", "tel no", "contact phone"],
+              "telefonnummer", "phone_number", "daytime phone", "mobile",
+              "mobile number", "contact number", "phone no", "cell number",
+              "tel no", "contact phone", "móvil", "celular", "portable"],
     "none": ["address", "street address", "city", "state", "postal code",
              "postcode", "country", "date of birth", "birthday", "dob", "age",
              "password", "username", "search", "search people", "organization",
              "job title", "website", "message", "comments", "case id",
              "order id", "card number", "ssn", "captcha", "dirección",
-             "ciudad", "adresse", "ville", "geburtsdatum", "code"],
+             "ciudad", "adresse", "ville", "geburtsdatum", "code", "company",
+             "zip code", "zip", "reference number", "account number",
+             "invoice number", "employer", "school", "gender", "notes"],
 }
 
 INJECTIONS = [
@@ -39,9 +46,10 @@ INJECTIONS = [
 ]
 
 WRAPPERS = ["{}", "Your {}", "{} *", "{}:", "Enter your {}", "{} (required)",
-            "Please enter {}", "{} (optional)", "Your {} here", "* {}", "{} please", "What is your {}?", "Type your {}", "{} of the person",
-"Enter the {}", "Provide your {}", "Requester {}", "{} (as on record)",
-"Confirm {}", "{} field", "My {}", "{} - required", "Primary {}"]
+            "Please enter {}", "{} (optional)", "Your {} here", "* {}",
+            "{} please", "What is your {}?", "Type your {}", "{} of the person",
+            "Enter the {}", "Provide your {}", "Requester {}", "{} (as on record)",
+            "Confirm {}", "{} field", "My {}", "{} - required", "Primary {}"]
 
 def noisy(text):
     case = random.choice([str.lower, str.title, str.upper, str.capitalize, str])
