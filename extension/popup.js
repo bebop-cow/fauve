@@ -1,3 +1,7 @@
+import { loadClassifier, classify } from "./classify.js";
+import { checkMapping, describeFields } from "./mapping.js";
+
+
 const ids = ["name", "email", "phone", "place"];
 const msg = document.getElementById("msg");
 
@@ -76,7 +80,8 @@ function autoFill(values) {
   for (const el of document.querySelectorAll("input")) {
     if (SKIP.includes(el.type) || el.disabled || el.readOnly) continue;
     if (looksLikeSearch(el)) continue;
-    if (el.offsetParent === null) continue;   // invisible: could be a bot trap
+    const r = el.getBoundingClientRect();
+    if (el.offsetParent === null || r.width < 4 || r.height < 4 || r.right <= 0 || r.bottom <= 0) continue;   // invisible or off-screen: could be a trap
     if (el.value) continue;                   // never overwrite what's there
     const slot = guessSlot(el);
     const v = slot && values[slot];
@@ -89,12 +94,36 @@ function autoFill(values) {
   return filled;
 }
 
+// Runs INSIDE the page. Fills only fields describeFields marked, after checkMapping.
+function fillById(mapping, values) {
+  const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set;
+  const SKIP = ["hidden", "password", "search", "checkbox", "radio", "submit", "button", "file"];
+  let filled = 0;
+  for (const { id, slot } of mapping) {
+    const matches = document.querySelectorAll(`input[data-houdini-id="${id}"]`);
+    if (matches.length !== 1) continue;                  // missing, or the page added a copy: skip
+    const el = matches[0];
+    if (SKIP.includes(el.type) || el.disabled || el.readOnly) continue;
+    const r = el.getBoundingClientRect();
+    if (el.offsetParent === null || r.width < 4 || r.height < 4 || r.right <= 0 || r.bottom <= 0) continue;
+    if (el.value) continue;                               // never overwrite
+    const v = values[slot];
+    if (!v) continue;
+    setValue.call(el, v);
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+    el.style.outline = "2px solid #ddb13c";
+    filled++;
+  }
+  for (const el of document.querySelectorAll("[data-houdini-id]")) delete el.dataset.houdiniId;
+  return filled;
+}
+
 let pendingHost = "";   // an unknown site the user was warned about once
 
 document.getElementById("fill").onclick = async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab.url) { msg.textContent = "Houdini can't read this tab's address."; return; }
-  const host = tab.url ? new URL(tab.url).hostname : "";
+  const host = new URL(tab.url).hostname;
 
   const name = splitName(document.getElementById("name").value);
   if (!name.first) { msg.textContent = "Enter your name first."; return; }
@@ -120,7 +149,14 @@ document.getElementById("fill").onclick = async () => {
     const [{ result }] = await chrome.scripting.executeScript({
       target: { tabId: tab.id }, func: autoFill, args: [values]
     });
-    msg.textContent = "Filled " + result + " field(s) (outlined in gold). Check every one before you submit.";
+    await loadClassifier();
+    const [{ result: fields }] = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: describeFields });
+    const labels = fields.map(f => ({ id: f.id, slot: classify(f.hint).slot })).filter(l => l.slot);
+    const mapping = checkMapping(fields, JSON.stringify(labels));
+    const extra = mapping.length
+      ? (await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: fillById, args: [mapping, values] }))[0].result
+      : 0;
+    msg.textContent = "Filled " + (result + extra) + " field(s) (outlined in gold). Check every one before you submit.";
     return;
   }
 

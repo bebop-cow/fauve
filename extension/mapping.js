@@ -46,16 +46,24 @@ export function describeFields() {
   function nearbyText(el) {
     // the text just before the field: walk up to the parent and read its text without the field's own value
     const box = el.parentElement;
-    return box ? box.textContent.trim() : "";
+    if (!box || box.querySelectorAll("input, select, textarea").length !== 1) return "";
+    return box.textContent.trim();
   }
 
   const SKIP = ["hidden", "password", "search", "checkbox", "radio", "submit", "button", "file"];
+  
+  function offScreen(el) {
+    const r = el.getBoundingClientRect();
+    return r.width < 4 || r.height < 4 || r.right <= 0 || r.bottom <= 0;
+  }
+  for (const old of document.querySelectorAll("[data-houdini-id]")) delete old.dataset.houdiniId;
+
   const fields = [];
   let next = 0;
   for (const el of document.querySelectorAll("input")) {
     if (SKIP.includes(el.type) || el.disabled || el.readOnly) continue;
     if (looksLikeSearch(el)) continue;
-    if (el.offsetParent === null) continue;   // invisible: could be a bot trap
+    if (el.offsetParent === null || offScreen(el))  continue;   // invisible: could be a bot trap
     if (el.value) continue;                   // never overwrite what's the                      // the same skips as autoFill: type, disabled/readOnly, search form, invisible, has a value
     if (guessSlot(el) !== null) continue;                       // guessSlot already knows it: not for the model
     const id = String(next++);
