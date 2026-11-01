@@ -39,9 +39,9 @@
     <span class="kicker">Session only</span>
   </header>
   <form>
-    <label>Full name <input id="name" autocomplete="name"></label>
+    <label>Full name <input id="name" autocomplete="name" required></label>
     <label>Email <input id="email" autocomplete="email" type="email"></label>
-    <label>Phone <input id="phone" autocomplete="tel" type="tel"></label>
+    <label>Phone <input id="phone" autocomplete="tel" type="tel" pattern="[0-9+()\-. ]{7,20}"></label>
     <label>City, State <input id="place" autocomplete="address-level2"></label>
     <div class="actions">
       <button id="fill" type="button">Fill this page</button>

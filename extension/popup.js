@@ -5,6 +5,20 @@ import { checkMapping, describeFields } from "./mapping.js";
 const ids = ["name", "email", "phone", "place"];
 const msg = document.getElementById("msg");
 
+// Returns true if every box is OK; otherwise shows why and returns false.
+// The rules live in popup.html: name is required, email is type="email",
+// phone has a pattern. Empty email or phone is fine (they're optional).
+function checkBoxes() {
+  for (const id of ["name", "email", "phone"]) {
+    const box = document.getElementById(id);
+    if (!box.checkValidity()) {
+      msg.textContent = "Check your " + id + ".";
+      return false;
+    }
+  }
+  return true;
+}
+
 // On open: put saved details back in the boxes.
 const { details } = await chrome.storage.session.get("details");
 if (details) {
@@ -13,6 +27,7 @@ if (details) {
 
 // Save: collect the four boxes into one object and store it (memory only).
 document.getElementById("save").onclick = async () => {
+  if (!checkBoxes()) return;
   const d = {};
   for (const id of ids) d[id] = document.getElementById(id).value;
   await chrome.storage.session.set({ details: d });
@@ -121,6 +136,7 @@ function fillById(mapping, values) {
 let pendingHost = "";   // an unknown site the user was warned about once
 
 document.getElementById("fill").onclick = async () => {
+  if (!checkBoxes()) return;
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab.url) { msg.textContent = "Houdini can't read this tab's address."; return; }
   const host = new URL(tab.url).hostname;

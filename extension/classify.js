@@ -18,7 +18,7 @@ export function ngrams(text) {
     for (const word of clean.split(/\s+/)) {
       if (!word) continue;
         const padded = " " + word + " ";
-        for (const n in [2, 3, 4]) {
+        for (const n of [2, 3, 4]) {
             for (let start = 0; start < padded.length - n + 1; start++) {
         const piece = padded.slice(start, start + n);
         counts[piece] = (counts[piece] || 0) + 1;
