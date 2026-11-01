@@ -14,13 +14,13 @@ SLOTS = {
                "second name", "segundo nombre", "middle_name"],
     "last": ["last name", "family name", "last", "lname", "last_name",
              "nom de famille", "nachname", "cognome", "sobrenome",
-             "legal last name"],
+             "legal last name", "family", "maiden name", "last names"],
     "email": ["email", "e-mail", "email address", "e-mail address", "mail",
               "correo", "correo electrónico", "courriel", "adresse e-mail",
               "e-mail-adresse", "your email", "email_address"],
     "phone": ["phone", "phone number", "telephone", "tel", "cell", "cell phone",
               "cellphone", "teléfono", "telefono", "téléphone", "telefon",
-              "telefonnummer", "phone_number", "daytime phone"],
+              "telefonnummer", "phone_number", "daytime phone", "cell number", "phone no", "tel no", "contact phone"],
     "none": ["address", "street address", "city", "state", "postal code",
              "postcode", "country", "date of birth", "birthday", "dob", "age",
              "password", "username", "search", "search people", "organization",
@@ -39,7 +39,9 @@ INJECTIONS = [
 ]
 
 WRAPPERS = ["{}", "Your {}", "{} *", "{}:", "Enter your {}", "{} (required)",
-            "Please enter {}", "{} (optional)", "Your {} here", "* {}"]
+            "Please enter {}", "{} (optional)", "Your {} here", "* {}", "{} please", "What is your {}?", "Type your {}", "{} of the person",
+"Enter the {}", "Provide your {}", "Requester {}", "{} (as on record)",
+"Confirm {}", "{} field", "My {}", "{} - required", "Primary {}"]
 
 def noisy(text):
     case = random.choice([str.lower, str.title, str.upper, str.capitalize, str])
