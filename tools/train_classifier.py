@@ -17,9 +17,18 @@ def ngrams(text):
     return counts
 
 print(ngrams("Hi!"))   
-# load tools/hints.csv → list of hints, list of slots
-# X = [ngrams(h) for h in hints]
-# split 80/20 with train_test_split (stratify=slots, random_state=1)
-# vec = DictVectorizer(); fit on train, transform test
-# clf = LogisticRegression(class_weight="balanced", max_iter=1000)
-# print accuracy on test, then each wrong one: hint, want, got
+
+path = Path(__file__).with_name("hints.csv")
+f = open(path, encoding="utf-8")
+rows = list(csv.DictReader(f))
+hint = [row["hint"] for row in rows]
+slot = [row["slot"] for row in rows]
+
+X = [ngrams(h) for h in hint]
+X_train, X_test, y_train, y_test = train_test_split(X, slots, test_size=0.2, stratify=slots, random_state=1)
+vec = DictVectorizer()
+X_train = vec.fit_transform(X_train)
+X_test = vec.transform(X_test)
+clf = LogisticRegression(class_weight="balanced", max_iter=1000)
+clf.fit(X_train, y_train)
+print(clf.score(X_test, y_test))
