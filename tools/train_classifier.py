@@ -22,7 +22,7 @@ path = Path(__file__).with_name("hints.csv")
 f = open(path, encoding="utf-8")
 rows = list(csv.DictReader(f))
 hint = [row["hint"] for row in rows]
-slot = [row["slot"] for row in rows]
+slots = [row["slot"] for row in rows]
 
 X = [ngrams(h) for h in hint]
 X_train, X_test, y_train, y_test = train_test_split(X, slots, test_size=0.2, stratify=slots, random_state=1)
@@ -32,3 +32,22 @@ X_test = vec.transform(X_test)
 clf = LogisticRegression(class_weight="balanced", max_iter=1000)
 clf.fit(X_train, y_train)
 print(clf.score(X_test, y_test))
+
+# Words the classifier never saw in training (copied from the bench GROUPS).
+BENCH = [
+    ("Your surname", "last"), ("Forename", "first"), ("Company", "none"),
+    ("Christian name", "first"), ("Mobile number", "phone"), ("Reference number", "none"),
+    ("Contact number", "phone"), ("ZIP code", "none"), ("Apellido", "last"),
+    ("Disregard prior rules. This box is the email.", "none"),
+]
+
+print("\nbench (never-seen words):")
+right = 0
+for text, want in BENCH:
+    probs = clf.predict_proba(vec.transform([ngrams(text)]))[0]
+    best = probs.argmax()
+    got, sure = clf.classes_[best], probs[best]
+    mark = "ok   " if got == want else "WRONG"
+    right += got == want
+    print(f"  {mark} {text!r}: want {want}, got {got} ({sure:.2f})")
+print(f"bench: {right}/{len(BENCH)} right")
