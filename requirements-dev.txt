@@ -1,2 +1,2 @@
 playwright==1.64.1
-scikit-learn
+scikit-learn==1.9.1
