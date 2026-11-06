@@ -24,5 +24,22 @@
     "Tick the CAPTCHA and click OPT OUT yourself",
     "Click the confirmation link Spokeo emails you"
   ]
-}
+},
+  "fastpeoplesearch": {
+    "label": "FastPeopleSearch",
+    "host": "www.fastpeoplesearch.com",
+    "fields": {
+      "form[action=\"/optout-start-submitted\"] input[name=\"firstname\"]": "first",
+      "form[action=\"/optout-start-submitted\"] input[name=\"middlename\"]": "middle",
+      "form[action=\"/optout-start-submitted\"] input[name=\"lastname\"]": "last",
+      "form[action=\"/optout-start-submitted\"] input[name=\"email\"][type=\"email\"]": "email"
+    },
+    "manual": [
+      "Pick your state from the list yourself",
+      "Read the agreement and tick its checkbox yourself",
+      "Complete the CAPTCHA and click submit yourself",
+      "Click the confirmation link FastPeopleSearch emails you",
+      "Pick the record that's you and finish the removal yourself"
+    ]
+  }
 }

@@ -84,6 +84,23 @@ UNKNOWN = SPY + """
   <button type="submit">Send</button>
 </form>"""
 
+# Fake copy of FastPeopleSearch's opt-out start form (names read with
+# tools/inspect_form.py). A people-search form with the same field names comes
+# first in the page, so an unscoped selector would fill the search instead.
+FASTPEOPLESEARCH = SPY + """
+<input name="searchfaker-input" placeholder="Search for..." disabled>
+<form action="/name"><input name="firstname"><input name="lastname">
+<button type="submit">Search</button></form>
+<form action="/optout-start-submitted">
+  <select name="am"><option value="">State</option><option>CA</option></select>
+  <label>First Name* <input name="firstname" id="firstname" type="text"></label>
+  <label>Middle Name <input name="middlename" id="middlename" type="text"></label>
+  <label>Last Name* <input name="lastname" id="lastname" type="text"></label>
+  <label>Email address* <input name="email" id="email" type="email"></label>
+  <input name="legal" type="checkbox">
+  <button type="submit">Submit</button>
+</form>"""
+
 SEARCHFORM = SPY + """
 <form action="/search"><input placeholder="First Name"><input placeholder="Last Name">
 <button type="submit">Search</button></form>"""
@@ -167,6 +184,20 @@ with sync_playwright() as p:
     if page.input_value('input[type="search"]') or page.input_value('input[name="url"]'):
         problems.append("K: filled the search box or the URL box")
 
+    # Q: FastPeopleSearch: names and email land in the opt-out form only;
+    #    the look-alike search form, state, checkbox and search box stay untouched
+    load(FASTPEOPLESEARCH)
+    n = fill(recipes["fastpeoplesearch"]["fields"], {**FAKE, "first": "Ann", "middle": "Bee", "last": "Cee", "email": "ann@example.com"})
+    opt = lambda f: page.input_value(f'form[action="/optout-start-submitted"] [name="{f}"]')
+    if (opt("firstname"), opt("middlename"), opt("lastname"), opt("email")) != ("Ann", "Bee", "Cee", "ann@example.com"):
+        problems.append("Q: FastPeopleSearch opt-out fields not filled correctly")
+    if page.input_value('form[action="/name"] [name="firstname"]') or page.input_value('form[action="/name"] [name="lastname"]'):
+        problems.append("Q: FastPeopleSearch recipe filled the people-search form")
+    if opt("am") or page.is_checked('[name="legal"]') or page.input_value('[name="searchfaker-input"]'):
+        problems.append("Q: FastPeopleSearch recipe touched state, checkbox or search box")
+    if n != 4 or page.evaluate("window.clicked || window.submitted"):
+        problems.append(f"Q: count {n} (want 4), or it clicked/submitted")
+
     # N: autoFill fills the clear fields and leaves everything doubtful alone
     load(UNKNOWN)
     n = page.evaluate("v => autoFill(v)", {**FAKE, "phone": "555-0100"})
@@ -197,7 +228,10 @@ def find(host):
     return [k for k, r in recipes.items() if r["host"] == host]
 if find("suppression.peopleconnect.us") != ["peopleconnect"]:
     problems.append("L: real host not matched")
-for bad in ("suppression.peopleconnect.us.evil.com", "www.instantcheckmate.com", "spokeo.com.evil.com"):
+if find("www.fastpeoplesearch.com") != ["fastpeoplesearch"]:
+    problems.append("L: FastPeopleSearch host not matched")
+for bad in ("suppression.peopleconnect.us.evil.com", "www.instantcheckmate.com", "spokeo.com.evil.com",
+            "fastpeoplesearch.com", "www.fastpeoplesearch.com.evil.com"):
     if find(bad):
         problems.append(f"L: matched look-alike host {bad}")
 

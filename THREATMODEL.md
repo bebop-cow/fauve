@@ -155,7 +155,7 @@ Fills data broker opt-out forms in the user's own browser. The user always submi
 - Other pages use the field finder, which only runs if the URL looks like an opt-out page, and only after a second confirming click on an unknown site.
 - Never clicks, never submits, never logs in. Login, birthdate, record choice, CAPTCHAs and email confirmation stay manual.
 - Skips hidden, off-screen, password, search, disabled and read-only fields and people-search forms; never overwrites a value; outlines every field it fills.
-- Tested by T16 (checks A–P) on local fake pages with fake data.
+- Tested by T16 (checks A–Q) on local fake pages with fake data.
 
 ### 0.2: field classifier (in development)
 
@@ -204,7 +204,7 @@ An earlier attempt used small local LLMs (Qwen2.5 0.5B/1.5B, Gemma 3 1B through 
 | T13 | Draft review: card masked, image and data-carrying link removed, findings never contain values |
 | T14 | Fake Fauve labels in a draft are flagged; clean drafts and Fauve's own labels are not |
 | T15 | Chat history: roles, `PASTE n` labels, taint set on every paste and never cleared, withheld pastes leak nothing, replies stored only after review, no extra `system` messages, secrets masked, fake labels in pastes flagged (and clean or withheld pastes not) |
-| T16 | Extension: permissions, recipes, exact host match, fill-only, skipped fields, search forms, field finder (A–P) |
+| T16 | Extension: permissions, recipes, exact host match, fill-only, skipped fields, search forms, field finder, FastPeopleSearch recipe (A–Q) |
 | T17 | `checkMapping`: rejects bad JSON, unknown ids and slots, duplicates, extra keys |
 | T18 | `describeFields`: only unplaced, visible fields; hints capped at 60 characters; ids map to the right fields |
 | T19 | Classifier end to end: JS/Python parity, injection, threshold, off-screen trap, copied marker, popup input rules (A–G) |
