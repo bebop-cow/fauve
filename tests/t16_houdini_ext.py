@@ -101,6 +101,18 @@ FASTPEOPLESEARCH = SPY + """
   <button type="submit">Submit</button>
 </form>"""
 
+# Fake copy of Whitepages' suppression page (fields as the user read them in
+# their own browser): the header people-search bar and the profile-URL box.
+# The recipe has no fields, so Houdini must leave all three empty.
+WHITEPAGES = SPY + """
+<form action="/header-search/name">
+  <input name="s_name" id="desktop-sticky-name-input" aria-label="Person name">
+  <input name="s_loc" id="desktop-sticky-location-input" aria-label="Location">
+  <button type="submit">Search</button>
+</form>
+<input id="suppression-requests-person-url" placeholder="Copy and paste the URL of your profile">
+<button type="button">Continue</button>"""
+
 SEARCHFORM = SPY + """
 <form action="/search"><input placeholder="First Name"><input placeholder="Last Name">
 <button type="submit">Search</button></form>"""
@@ -198,6 +210,16 @@ with sync_playwright() as p:
     if n != 4 or page.evaluate("window.clicked || window.submitted"):
         problems.append(f"Q: count {n} (want 4), or it clicked/submitted")
 
+    # R: Whitepages: empty recipe fills nothing; search bar and profile URL stay empty
+    load(WHITEPAGES)
+    n = fill(recipes["whitepages"]["fields"], {**FAKE, "first": "Ann", "last": "Cee", "email": "ann@example.com", "phone": "555-0100"})
+    if n != 0:
+        problems.append(f"R: Whitepages recipe filled {n} field(s), want 0")
+    if page.input_value('[name="s_name"]') or page.input_value('[name="s_loc"]') or page.input_value("#suppression-requests-person-url"):
+        problems.append("R: Whitepages search bar or profile-URL box was filled")
+    if page.evaluate("window.clicked || window.submitted"):
+        problems.append("R: Whitepages fill clicked or submitted something")
+
     # N: autoFill fills the clear fields and leaves everything doubtful alone
     load(UNKNOWN)
     n = page.evaluate("v => autoFill(v)", {**FAKE, "phone": "555-0100"})
@@ -230,8 +252,11 @@ if find("suppression.peopleconnect.us") != ["peopleconnect"]:
     problems.append("L: real host not matched")
 if find("www.fastpeoplesearch.com") != ["fastpeoplesearch"]:
     problems.append("L: FastPeopleSearch host not matched")
+if find("www.whitepages.com") != ["whitepages"]:
+    problems.append("L: Whitepages host not matched")
 for bad in ("suppression.peopleconnect.us.evil.com", "www.instantcheckmate.com", "spokeo.com.evil.com",
-            "fastpeoplesearch.com", "www.fastpeoplesearch.com.evil.com"):
+            "fastpeoplesearch.com", "www.fastpeoplesearch.com.evil.com",
+            "whitepages.com", "www.whitepages.com.evil.com"):
     if find(bad):
         problems.append(f"L: matched look-alike host {bad}")
 

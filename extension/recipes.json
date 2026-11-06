@@ -41,5 +41,16 @@
       "Click the confirmation link FastPeopleSearch emails you",
       "Pick the record that's you and finish the removal yourself"
     ]
+  },
+  "whitepages": {
+    "label": "Whitepages",
+    "host": "www.whitepages.com",
+    "fields": {},
+    "manual": [
+      "Search Whitepages for your own listing yourself",
+      "Open the listing that's you and copy its URL",
+      "Paste the URL into the suppression form and continue",
+      "Finish any phone verification yourself"
+    ]
   }
 }
