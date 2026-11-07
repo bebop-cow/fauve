@@ -82,6 +82,15 @@
     #list button { background:transparent; color:var(--gold); border:1px solid var(--gold); padding:.5rem .9rem; }
     #list button:hover { background:var(--gold); color:#231b1b; }
 
+    .ext { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:1.2rem 1.4rem; }
+    .ext p { margin:0 0 .8rem; }
+    .ext ul { margin:0 0 1rem; padding-left:1.1rem; color:var(--muted); font-size:14px; }
+    .ext li { margin:.25rem 0; }
+    .ext strong { color:var(--ink); font-weight:600; }
+    .stores { display:flex; flex-wrap:wrap; gap:.6rem; margin:0; }
+    .stores a { display:inline-block; padding:.6rem 1rem; border:1px solid var(--gold); border-radius:8px; text-decoration:none; font:600 14px/1 var(--body); }
+    .stores a:hover { background:var(--gold); color:#231b1b; }
+
     footer.note { margin-top:1.6rem; padding-top:1rem; border-top:1px solid var(--line); }
     @media (max-width:560px) {
       .file { grid-template-columns:minmax(0, 1fr); padding:1.1rem; }
@@ -104,8 +113,23 @@
     <ul class="start">
       <li><a href="https://privacy.ca.gov/drop/" target="_blank" rel="noopener">California DROP</a>One request to every registered data broker (California residents).</li>
       <li><a href="https://support.google.com/websearch/answer/12719076" target="_blank" rel="noopener">Google "Results about you"</a>Remove search results showing your phone, email, or address.</li>
-      <li><a href="FIREFOX-LINK" target="_blank" rel="noopener">Houdini extension</a>Fills broker opt-out forms for you in Firefox or Chrome. You click submit. (<a href="CHROME-LINK" target="_blank" rel="noopener">Chrome</a>)</li>
+      <li><a href="#extension">Houdini extension</a>Fills broker opt-out forms for you in Firefox or Chrome. You click submit.</li>
     </ul>
+
+    <!-- DRAFT: extension card. Replace FIREFOX-LINK and CHROME-LINK with the store
+         listing URLs after approval. Plain HTML and inline CSS only (page CSP). -->
+    <h2 id="extension">The extension</h2>
+    <div class="ext">
+      <p>Houdini for your browser fills in data broker opt-out forms with your name, email and phone, right on the broker's own page. <strong>It only fills. You check every field and click submit yourself.</strong></p>
+      <ul>
+        <li><strong>Fill only.</strong> It never clicks, submits, logs in, solves CAPTCHAs or verifies your identity. Searching for your record, CAPTCHAs and email confirmation stay with you, and it lists those steps for each broker.</li>
+        <li><strong>Only the tab you choose.</strong> It acts on the tab you're on when you click it, and no other. It has no access to any site until you click.</li>
+        <li><strong>Nothing leaves your browser.</strong> No servers, no analytics, no AI download. Your details are kept in memory and are gone when you close the browser.</li>
+        <li><strong>Careful with the page.</strong> It skips hidden, locked and search fields, never overwrites what's already there, and outlines everything it fills in gold.</li>
+        <li><strong>Known brokers:</strong> Instant Checkmate and TruthFinder (PeopleConnect), Spokeo, FastPeopleSearch, Whitepages. On other opt-out pages it fills only the fields it's sure about, after asking you to confirm the site.</li>
+      </ul>
+      <p class="stores"><a href="FIREFOX-LINK" target="_blank" rel="noopener">Get it for Firefox</a> <a href="CHROME-LINK" target="_blank" rel="noopener">Get it for Chrome</a></p>
+    </div>
 
     <h2>Your details</h2>
     <div class="file">

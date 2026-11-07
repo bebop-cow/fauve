@@ -71,6 +71,24 @@ SPOKEO = SPY + """
 
 FAKE = {"first": "Testy", "middle": "", "last": "McTest", "email": "fake@example.com"}
 
+# Recipe fills follow the same page rules as the field finder: one good field,
+# then traps a changed broker page could put under a recipe's selector.
+GUARDS = SPY + """
+<form action="/opt-out">
+  <input name="s-ok">
+  <input name="s-hidden" style="display:none">
+  <input name="s-offscreen" style="position:absolute; left:-9999px">
+  <input name="s-tiny" style="width:1px; height:1px; padding:0; border:0">
+  <input name="s-typehidden" type="hidden">
+  <input name="s-password" type="password">
+  <input name="s-search" type="search">
+  <input name="s-prefilled" value="TYPED-BY-USER">
+  <textarea name="s-textarea"></textarea>
+</form>"""
+GUARD_FIELDS = {f'input[name="s-{k}"]': "first" for k in
+                ("ok", "hidden", "offscreen", "tiny", "typehidden", "password", "search", "prefilled")}
+GUARD_FIELDS['textarea[name="s-textarea"]'] = "first"
+
 UNKNOWN = SPY + """
 <form action="/opt-out">
   <label>First name <input name="fname"></label>
@@ -189,6 +207,32 @@ with sync_playwright() as p:
     n = fill({'input[name="dob-string"]': "first"}, FAKE)
     if page.input_value('input[name="dob-string"]') != "" or n != 0:
         problems.append("J: filled a disabled field")
+
+    # S: recipe fills skip hidden, off-screen, tiny, hidden/password/search-type
+    #    and non-input fields, and never overwrite a value
+    load(GUARDS)
+    try:
+        n = fill(GUARD_FIELDS, {**FAKE, "first": "Ann"})
+    except Exception as e:
+        n = None
+        problems.append(f"S: fillPage threw on a non-input field: {str(e)[:80]}")
+    val = lambda k: page.evaluate(f"document.querySelector('[name=\"s-{k}\"]').value")
+    if val("ok") != "Ann":
+        problems.append("S: the plain visible field was not filled")
+    for k in ("hidden", "offscreen", "tiny", "typehidden"):
+        if val(k):
+            problems.append(f"S: filled an invisible or off-screen field ({k})")
+    for k in ("password", "search"):
+        if val(k):
+            problems.append(f"S: filled a {k} field")
+    if val("prefilled") != "TYPED-BY-USER":
+        problems.append("S: overwrote a value already in the field")
+    if val("textarea"):
+        problems.append("S: filled a non-input field")
+    if n is not None and n != 1:
+        problems.append(f"S: count {n}, want 1")
+    if page.evaluate("window.clicked || window.submitted"):
+        problems.append("S: fill clicked or submitted something")
 
     # K: Spokeo: only the email box in the form; search box and URL untouched
     load(SPOKEO)

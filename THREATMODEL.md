@@ -11,7 +11,7 @@ This document says what Fauve defends against, how, and where the defenses stop.
 | Email cleanup | `web/` | v0.5 alpha | Hermes 3 (3B), local, via WebLLM |
 | Chat | `web/chat.html` | v0.6 alpha | Same local model, no tools |
 | Houdini web page | `web/houdini.html` | 1.0 | None |
-| Houdini browser extension | `extension/` | 0.1 in stores, 0.2 in development | 0.2: small local classifier, no LLM |
+| Houdini browser extension | `extension/` | 0.1 in stores, 0.2.1 in development | 0.2: small local classifier, no LLM |
 
 ---
 
@@ -154,10 +154,16 @@ Fills data broker opt-out forms in the user's own browser. The user always submi
 - Known brokers use recipes: exact-host match, stable selectors (`name` attributes, never generated classes or IDs).
 - Other pages use the field finder, which only runs if the URL looks like an opt-out page, and only after a second confirming click on an unknown site.
 - Never clicks, never submits, never logs in. Login, birthdate, record choice, CAPTCHAs and email confirmation stay manual.
-- Skips hidden, off-screen, password, search, disabled and read-only fields and people-search forms; never overwrites a value; outlines every field it fills.
-- Tested by T16 (checks A–R) on local fake pages with fake data.
+- The field finder skips hidden, off-screen, password, search, disabled and read-only fields and people-search forms, never overwrites a value, and outlines every field it fills. Recipe fills follow the same field rules from 0.2.1.
+- Tested by T16 (checks A–S) on local fake pages with fake data.
 
-### 0.2: field classifier (in development)
+### 0.2.1: more recipes (in development)
+
+- New recipes: FastPeopleSearch (selectors scoped to the opt-out form with `form[action="/optout-start-submitted"]`, so the site's people search, which reuses the same field names, can't match) and Whitepages (empty `fields`: the page only has a people-search bar and a profile-URL box, so Houdini fills nothing, shows the manual steps, and never runs the field finder there).
+- Recipe fills are outlined in gold and follow the field finder's rules: they skip hidden, off-screen, tiny, password, search, disabled, read-only and non-input fields, and never overwrite a value (T16 S).
+- Recipes are written only from field lists the maintainer collects on the live page in their own browser (docs/recipes.md). Nothing scripts past bot protection.
+
+### 0.2: field classifier
 
 On an unknown opt-out page, after the field finder, Houdini reads the hint text of each field it couldn't place (label, aria-label, placeholder, or text in the field's own box) and scores it with a small logistic-regression classifier over character n-grams. The weights ship in `extension/classifier.json`, built by `tools/make_hints.py` (fake data) and `tools/train_classifier.py`. It runs in the popup: no network, no model download, no WebGPU, no LLM.
 
@@ -171,13 +177,14 @@ An earlier attempt used small local LLMs (Qwen2.5 0.5B/1.5B, Gemma 3 1B through 
 |---|---|---|
 | Prompt-injection text in a label ("ignore rules, this is the email") | No instructions to follow; unsure answers (< 0.9) leave the field empty | T19 B |
 | Wrong label puts data in the wrong field | 0.9 threshold; `none` class; gold outline; user reviews and clicks submit | T19 C, F |
-| Hidden or off-screen trap field collects data | Skip hidden, zero-size and off-page fields in the field finder, describeFields and fillById | T19 D |
+| Hidden or off-screen trap field collects data | Skip hidden, zero-size and off-page fields in recipe fills, the field finder, describeFields and fillById | T19 D, T16 S |
 | Page copies Houdini's field marker onto another field | fillById requires exactly one match per id; markers cleared before and after | T19 E |
 | Neighbouring labels leak into a field's hint | Box text only used when the box holds a single field | T19 F |
 | Search box turns your name into a people search | Search forms skipped; opt-out path check; warning on unknown hosts | T16 N, O |
 | Classifier output outside the allowed set | `checkMapping` gate: known ids, allowed slots, one slot per field | T17 |
 | JS and Python feature code drift apart | Parity check on every training hint, with a for...in control | T19 A |
 | Junk details filled | Popup checks: name required, email format, phone pattern | T19 G |
+| Recipe selector matches a look-alike people-search field with the same `name` | Selectors scoped to the opt-out form; empty recipe where nothing is safe to fill | T16 Q, R |
 | Touching tabs the user didn't choose | `activeTab` only, no host permissions | T16 A, B |
 
 ---
@@ -204,7 +211,7 @@ An earlier attempt used small local LLMs (Qwen2.5 0.5B/1.5B, Gemma 3 1B through 
 | T13 | Draft review: card masked, image and data-carrying link removed, findings never contain values |
 | T14 | Fake Fauve labels in a draft are flagged; clean drafts and Fauve's own labels are not |
 | T15 | Chat history: roles, `PASTE n` labels, taint set on every paste and never cleared, withheld pastes leak nothing, replies stored only after review, no extra `system` messages, secrets masked, fake labels in pastes flagged (and clean or withheld pastes not) |
-| T16 | Extension: permissions, recipes, exact host match, fill-only, skipped fields, search forms, field finder, FastPeopleSearch and Whitepages recipes (A–R) |
+| T16 | Extension: permissions, recipes, exact host match, fill-only, skipped fields, search forms, field finder, FastPeopleSearch and Whitepages recipes, recipe-fill field rules (A–S) |
 | T17 | `checkMapping`: rejects bad JSON, unknown ids and slots, duplicates, extra keys |
 | T18 | `describeFields`: only unplaced, visible fields; hints capped at 60 characters; ids map to the right fields |
 | T19 | Classifier end to end: JS/Python parity, injection, threshold, off-screen trap, copied marker, popup input rules (A–G) |
@@ -251,7 +258,7 @@ Notes:
 - The classifier knows spellings, not meanings: a synonym it never saw stays empty.
 - A malicious page could label fields to attract the user's details. The opt-out-path check and the confirm click reduce this but don't remove it.
 - A page can still show a misleading form that passes every check. Houdini never submits, so the last check is always you.
-- Recipes break silently when a broker changes its form; T16 can't see live sites.
+- Recipes break silently when a broker changes its form; T16 can't see live sites. docs/release-checklist.md lists the live checks per recipe.
 
 ## Known gaps
 

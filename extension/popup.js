@@ -50,9 +50,14 @@ function splitName(full) {
 function fillPage(fields, values) {
   let filled = 0;
   const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set;
+  const SKIP = ["hidden", "password", "search", "checkbox", "radio", "submit", "button", "file"];
   for (const [selector, slot] of Object.entries(fields)) {
     const el = document.querySelector(selector);
-    if (!el || el.disabled || el.readOnly) continue;   // missing or locked field: skip it
+    if (!el || el.tagName !== "INPUT") continue;                 // missing, or not a text-like input
+    if (SKIP.includes(el.type) || el.disabled || el.readOnly) continue;   // wrong kind of field, or locked
+    const r = el.getBoundingClientRect();
+    if (el.offsetParent === null || r.width < 4 || r.height < 4 || r.right <= 0 || r.bottom <= 0) continue;   // invisible or off-screen: could be a trap
+    if (el.value) continue;                           // never overwrite what's there
     const v = values[slot];
     if (!v) continue;                                 // nothing to put here: leave the field alone
     setValue.call(el, v);
