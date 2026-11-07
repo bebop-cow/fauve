@@ -57,6 +57,7 @@ function fillPage(fields, values) {
     if (!v) continue;                                 // nothing to put here: leave the field alone
     setValue.call(el, v);
     el.dispatchEvent(new Event("input", { bubbles: true }));
+    el.style.outline = "2px solid #ddb13c";
     filled++;
   }
   return filled;

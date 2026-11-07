@@ -87,12 +87,14 @@ UNKNOWN = SPY + """
 # Fake copy of FastPeopleSearch's opt-out start form (names read with
 # tools/inspect_form.py). A people-search form with the same field names comes
 # first in the page, so an unscoped selector would fill the search instead.
+# The "am" select is "I am" (who is making the request), which the user picks;
+# the options here are fake placeholders.
 FASTPEOPLESEARCH = SPY + """
 <input name="searchfaker-input" placeholder="Search for..." disabled>
 <form action="/name"><input name="firstname"><input name="lastname">
 <button type="submit">Search</button></form>
 <form action="/optout-start-submitted">
-  <select name="am"><option value="">State</option><option>CA</option></select>
+  <select name="am"><option value="">I am</option><option>Fake option</option></select>
   <label>First Name* <input name="firstname" id="firstname" type="text"></label>
   <label>Middle Name <input name="middlename" id="middlename" type="text"></label>
   <label>Last Name* <input name="lastname" id="lastname" type="text"></label>
@@ -197,7 +199,7 @@ with sync_playwright() as p:
         problems.append("K: filled the search box or the URL box")
 
     # Q: FastPeopleSearch: names and email land in the opt-out form only;
-    #    the look-alike search form, state, checkbox and search box stay untouched
+    #    the look-alike search form, "I am" list, checkbox and search box stay untouched
     load(FASTPEOPLESEARCH)
     n = fill(recipes["fastpeoplesearch"]["fields"], {**FAKE, "first": "Ann", "middle": "Bee", "last": "Cee", "email": "ann@example.com"})
     opt = lambda f: page.input_value(f'form[action="/optout-start-submitted"] [name="{f}"]')
@@ -206,7 +208,9 @@ with sync_playwright() as p:
     if page.input_value('form[action="/name"] [name="firstname"]') or page.input_value('form[action="/name"] [name="lastname"]'):
         problems.append("Q: FastPeopleSearch recipe filled the people-search form")
     if opt("am") or page.is_checked('[name="legal"]') or page.input_value('[name="searchfaker-input"]'):
-        problems.append("Q: FastPeopleSearch recipe touched state, checkbox or search box")
+        problems.append("Q: FastPeopleSearch recipe touched the \"I am\" list, checkbox or search box")
+    if not page.evaluate("""document.querySelector('form[action="/optout-start-submitted"] [name="firstname"]').style.outline.includes('solid')"""):
+       problems.append("Q: recipe-filled field is not outlined")
     if n != 4 or page.evaluate("window.clicked || window.submitted"):
         problems.append(f"Q: count {n} (want 4), or it clicked/submitted")
 
