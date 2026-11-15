@@ -50,7 +50,7 @@ with sync_playwright() as p:
 
         if mp.get_attribute('input[type="email"]', "data-houdini-id") is not None:
             problems.append("E: the email field (known to guessSlot) was given an id")
-            
+
     browser.close()
 
 if problems:

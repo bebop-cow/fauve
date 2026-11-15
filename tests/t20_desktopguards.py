@@ -7,6 +7,8 @@
 #    with the instruction as a separate user message; junk pages are withheld
 # F  replies are reviewed before they're stored (data links removed, cards masked)
 # G  main.py: every request goes through guarded.py, no outside probe, no fake approval UI
+# H  the desktop UI loads nothing from the internet (theme.py fonts are local files only)
+# I  main.py has no hard-coded colours: every colour comes from theme.py tokens
 import importlib.util, socket, sys
 from pathlib import Path
 
@@ -115,6 +117,23 @@ check("G", "gstatic" not in main and "check_internet" not in main, "outside conn
 check("G", "add_reply" in (APP / "guarded.py").read_text() or "add_reply" in main, "reply review not wired")
 check("G", "HELD AT THE SANDBOX DOOR" not in main and "api.osv.dev" not in main, "fake approval card still in main.py")
 check("G", 'q.put(piece)' not in main, "raw model text is still streamed to the screen")
+
+# H
+import re as _re
+theme_src = (APP / "theme.py").read_text()
+check("H", not _re.search(r"https?://", theme_src), "theme.py contains a URL (fonts or assets fetched from the internet)")
+try:
+    sys.path.insert(0, str(APP))
+    import theme
+    remote = {k: v for k, v in theme.FONTS.items() if "://" in str(v) or not (theme.ASSETS / v).exists()}
+    check("H", not remote, f"theme.FONTS points outside assets/: {remote}")
+except ImportError as ex:
+    check("H", False, f"couldn't import theme.py: {ex}")
+
+# I
+# main.py takes every colour from theme.py tokens: no hex literals, rgb() strings or ft.Colors.
+colours = _re.findall(r"""["']#[0-9a-fA-F]{3,8}["']|rgba?\(|ft\.Colors\.""", main)
+check("I", not colours, f"hard-coded colours in main.py (use theme.py tokens): {colours}")
 
 if fails:
     print("\n".join(fails)); sys.exit(1)

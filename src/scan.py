@@ -1,6 +1,10 @@
 import re
 
-CARD = re.compile(r"(?<!\d)\d{13,19}(?!\d)")
+# 13-19 digits, optionally split by single spaces or dashes (4111 1111 1111 1111)
+CARD = re.compile(r"(?<!\d)(?:\d[ -]?){12,18}\d(?!\d)")
+
+def _digits(s):
+    return re.sub(r"\D", "", s)
 
 SSN = re.compile(r"(?<!\d)\d{3}-\d{2}-\d{4}(?!\d)")
 
@@ -26,7 +30,7 @@ def luhn_ok(digits):
 def find_sensitive(text):
     findings = []
     for m in CARD.finditer(text):
-        if luhn_ok(m.group(0)):
+        if luhn_ok(_digits(m.group(0))):
             findings.append("card")
     for m in SSN.finditer(text):
         findings.append("ssn")
@@ -37,7 +41,7 @@ def find_sensitive(text):
 
 def mask_sensitive(text):
     def card_fix(m):
-        if luhn_ok(m.group(0)):
+        if luhn_ok(_digits(m.group(0))):
             return "[REDACTED card]"        
         return m.group(0)                    # not a real card: leave it alone
     text = CARD.sub(card_fix, text)             
