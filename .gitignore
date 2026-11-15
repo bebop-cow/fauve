@@ -6,4 +6,7 @@ web-ext-artifacts/
 web/screenshots/
 node_modules/
 /tools/hints.csv
-/mistraltest
+desktop/evals/results/
+desktop/evals/compare_*
+desktop/*.zip
+experiments/llm-bench/bench/

@@ -12,6 +12,7 @@ This document says what Fauve defends against, how, and where the defenses stop.
 | Chat | `web/chat.html` | v0.6 alpha | Same local model, no tools |
 | Houdini web page | `web/houdini.html` | 1.0 | None |
 | Houdini browser extension | `extension/` | 0.1 in stores, 0.2.1 in development | 0.2: small local classifier, no LLM |
+| Desktop app | `desktop/` (`main.py` Flet, `webui.py` + `ui/` web view, `guarded.py`, `cloud.py`); `Fauve.app` built from the web view | prototype | Local MLX model by default; optional cloud model (`CLOUD_MODEL`, default `claude-sonnet-5-5`) per approved message |
 
 ---
 
@@ -55,6 +56,98 @@ A multi-turn chat in the browser, with the same local model and still no tools.
 - Every model reply goes through the same review as v0.5 drafts. Only the reviewed text is stored in the history, and the page shows only the stored history, never the raw reply.
 - Only the first message in the history may have the `system` role.
 - Like v0.5, it loads WebLLM from a CDN, downloads model weights, and has no strict Content Security Policy yet.
+
+## Desktop app (prototype)
+
+A Flet desktop chat in `desktop/`. The model is a local MLX model on this Mac (`MODEL_URL`, localhost only). It uses the same `src/` pipeline as the browser alpha: pages and pastes are cleaned, masked and labeled; every reply goes through `Chat.add_reply` (review) before it's shown. The app folder is in `.gitignore`; T20, T21 and T22 find it on disk.
+
+Offline: the app itself needs no internet. Fonts and images are local files (`theme.py` never uses a URL; T20 H), and the model runs in `mlx_lm.server` on 127.0.0.1. Start that server with `HF_HUB_OFFLINE=1`: without it, `mlx_lm` asks huggingface.co for model updates each time the server starts. It falls back to the cached model when offline, but the check itself sends the model name and your IP address out.
+
+There are two interfaces over the same guards: `main.py` (Flet) and `webui.py` (a web view, below). Both use `guarded.py` and `cloud.py` unchanged.
+
+Two switches, both off at startup, both shown in the sidebar and the status card. "Nothing leaves this Mac" is shown only while both are off.
+
+- **WEB** (`guarded.py`): `/web <url>` fetches one https page from a public host. Redirects are re-checked; size and type are capped. The page enters the chat as untrusted data and taints it.
+- **CLOUD** (`cloud.py`): OFF or ASK EACH TIME. It lets the user send one approved message to Anthropic's Messages API.
+
+### Cloud layer (opt-in)
+
+- **What opens an approval card:** only the user's own typed `/ask-claude <message>`, or the user clicking "Ask a frontier model?". That button appears from code heuristics only: a long message, a code block, hard-problem keywords, or a local reply that says it's unsure. It opens a card for the user's own last typed message. Page, paste and model-reply text never reach the command parser and never open a card.
+- **What the card shows:** the exact text to be sent (rendered from the request body that SEND ONCE posts), the host (`api.anthropic.com`), the model, what was masked, and a link to Anthropic's data-retention page.
+  - Everything is passed through `mask_sensitive` first.
+  - Chat history is sent only if "Include this chat" is ticked, also masked, without the local system prompt. A tainted chat (pages, pastes) gets a red warning.
+- **SEND ONCE / CANCEL:** SEND ONCE posts that body once; the card can't be sent again. CANCEL sends nothing. Turning CLOUD off cancels the card and blocks the send.
+- **The only host:** https://api.anthropic.com/v1/, enforced by `guarded.check_url` plus an exact host, port and path check. The opener uses no proxy and refuses every redirect.
+- **The API key:** read from the macOS Keychain (`security find-generic-password -s fauve-anthropic -w`) at send time and used only in the `x-api-key` header. It is never read from `.env` or code, never stored, logged or shown, and never in what a model sees. If it's missing, the notice shows the `security add-generic-password` command.
+- **The reply is untrusted:** it goes through `Chat.add_reply` (review) before it's stored or shown. In the Flet app it's labeled "ANSWERED IN THE CLOUD · <model> · api.anthropic.com" with a red border. A refusal or a reply cut off at `max_tokens` (16,000) is reported.
+- **No server-side model fallback:** the reply comes from the model on the card.
+
+### Look (from the "Fauve Approval Flow" design): Flet `theme.py` and web view `ui/`
+
+Display only; no guard changed. Fauve.app (the web view) and the Flet app use the same tokens: `theme.py` for Flet, CSS variables in `ui/app.css` for the web view.
+
+- Every colour, font, size, spacing and radius is a token in `theme.py` (day, night, the Red Studio and the approval card). `main.py` has no colour literals (T20 I).
+- While an approval card is open, the chat column, the painting and the status card turn red ("Red Studio") and the header chip says WAITING ON YOU. The sidebar keeps its colours, so the WEB and CLOUD switches always read the same.
+- The card is headed NEEDS YOUR OK. It still shows the host, the model, what was masked, the privacy link and the exact text, with SEND ONCE and CANCEL.
+- Notices are bordered mono blocks headed FAUVE NOTICE, with no avatar, so they don't look like model text. The status card's headline and facts are fixed strings chosen by code from the app state, never model text.
+- The painting column uses tall panels (`assets/panels/`): idle, working, the Red Studio while a card waits, and a celebration after a cloud answer comes back (until the next message). Web view only: they cross-fade over 600 ms. Every image the page shows is listed in `webui.ART` and inlined as a `data:` URI; T23 E checks that `fauve.spec` bundles each one, since a missing file would stop the app at launch. The page's status card shows the fixed strings `webui.Api._status()` picks, and fact rows are built with `textContent`.
+- Where the design shows sandbox, tool or download features Fauve doesn't have (Allow for this case, the sandbox map, case files, model downloads), they were left out rather than imitated. T20 G keeps the old fake sandbox card out of `main.py`.
+
+### Web-view interface (`webui.py`, prototype)
+
+A native macOS window (pywebview, WKWebView) showing an HTML/CSS/JS page (`ui/`). It adds streaming replies, Markdown, keyboard shortcuts and command hints. The page is a renderer only; every decision stays in Python.
+
+- **No server, no port.** `build_page()` inlines the CSS, JS, fonts and images into one HTML string and loads it directly. Nothing listens on localhost.
+- **CSP:** `default-src 'none'`; the one script and the one style are allowed by their exact SHA-256 hashes; images and fonts are `data:` only; `connect-src`, `frame-src`, `object-src`, `base-uri` and `form-action` are `'none'`. `'unsafe-eval'` is allowed because pywebview's own bridge uses `eval` and `new Function`; `app.js` never evals.
+- **The bridge:** the page can call only the public methods of `webui.Api` (`PAGE_METHODS`). All state is in underscore attributes, which pywebview never exposes. The page can't pass a URL: the privacy link opens the one fixed `PRIVACY_URL` from Python.
+- **Rendering:** `app.js` builds Markdown from DOM nodes with `textContent` only. It never creates links, images, frames or scripts, and makes no network calls. File drops are blocked so the view can't navigate to a file.
+- **Native dialogs:** turning WEB on, turning CLOUD on and SEND ONCE each need a click on a macOS dialog drawn by Python. Page script can't click it. The SEND ONCE dialog shows the masked message, model, host and whether the chat is included. A stale or wrong card id is refused without a dialog.
+- **Streaming:** raw model text never reaches the page. While a reply streams, the page gets `live_preview()`: `review_output` of the raw text up to its last safe boundary (a newline, or `. ! ? ; :` followed by a space), with an unclosed private-key block held back. Nothing that review masks or removes can straddle that boundary. The final reply is the reviewed text stored in the chat, as in `main.py`.
+
+### Saved cases (`casefiles.py`, Fauve.app only)
+
+Nothing is kept unless the user clicks SAVE (or ⌘S). A saved case appears under CASE FILES; clicking it reopens the chat and gives the local model the conversation as context again.
+
+- **Where:** `~/Library/Application Support/Fauve/cases/<id>.json`, folder 0700, files 0600, written atomically. Never sent anywhere; the cloud only sees a reopened chat if the user ticks "Include this chat" on a card, as before.
+- **What:** the on-screen messages and the model history (user and assistant turns), masked with `mask_sensitive` on save and again on load. Never the system prompt: a reopened case runs under the app's current one, and a file with any other role is refused whole.
+- **Taint:** a chat that had pages or pastes is saved as tainted and reopens tainted, with the warning.
+- **Ids, not paths:** ids are 32 hex characters chosen by `casefiles`. The page can only pass an id back; anything else, and symlinked files, are refused.
+- **Delete:** the × on a saved case asks a native dialog first, then deletes the file.
+
+### Fauve.app (`build_app.sh`, `fauve.spec`, `localserver.py`)
+
+The web view packaged with PyInstaller as a Mac app, installed to `~/Applications/Fauve.app`. It holds Python, Fauve's code and `src/` pipeline, the page, pywebview and MLX. The model isn't inside: it stays in the Hugging Face cache and is read from disk.
+
+- **The app runs its own model server.** `localserver.py` sets `HF_HUB_OFFLINE`, `TRANSFORMERS_OFFLINE` and `HF_HUB_DISABLE_TELEMETRY` before anything loads `huggingface_hub`, then runs `mlx_lm.server` in a background thread of the app, on 127.0.0.1 only. It stops when the app quits.
+- **If a server already answers on the port, the app uses it** (for example one started in Terminal) and leaves it running.
+- **While the model starts,** the prompt box is refused. A failed start is shown in the window and logged to stderr (Console.app).
+- **Checked offline:** launched in a sandbox with no network except localhost, the installed app's server came up in about 7 s, answered, listened only on 127.0.0.1, and stopped when the app quit.
+- **Signing:** ad hoc. The build runs in `~/Library/Caches/Fauve-build`, because iCloud Drive (which syncs Documents) adds file attributes that `codesign` refuses.
+
+**Sent data leaves Fauve's control.** It falls under Anthropic's API terms and data-retention policy (API inputs and outputs are deleted within 30 days, with exceptions listed on that page), not under Fauve's retention rules.
+
+### Desktop threats
+
+| Threat | Mitigation | Test |
+|---|---|---|
+| Page or paste text says "/ask-claude …" or "send this to the cloud" | Only the typed prompt reaches `cloud.command`; only the SEND ONCE handler calls `send_card`; untrusted text never opens a card | T21 D |
+| Something sends without the user's approval | CLOUD off at startup; cards need CLOUD on; one send per card; cancel and switch-off block it | T21 A |
+| Secrets or the whole chat go to the cloud | `mask_sensitive` on the message and on history; history only on opt-in; taint warning; card shows the exact body | T21 C |
+| Requests to a host other than the API (redirect, proxy, spoofed URL) | Exact-host check + `check_url`, no proxy, no redirects | T21 B |
+| Malicious or manipulated cloud reply (data links, images, fake labels) | Same review as local replies before storage | T21 E |
+| API key leaks into history, logs, notices or the body | Keychain read at send time, header only, fixed error messages | T21 F |
+| Page fetch reaches local or private hosts | https only, public addresses, redirects re-checked | T20 B, C |
+| Web view: injected HTML or script in a reply, page or paste | `textContent` only; CSP allows only the hashed script and style; no links, images or frames are created | T22 B, C |
+| Web view: page script calls the bridge to turn the network on or send | Short method list; native dialogs for WEB on, CLOUD on and SEND ONCE; card ids checked | T22 A, D |
+| Web view: a reply or page says "/ask-claude" | Only `Api.send` (the prompt box) reaches `cloud.command`; only `send_once` leads to `send_card` | T22 D, E |
+| Web view: streaming shows unreviewed text (a secret or data link mid-reply) | Only `live_preview()` reaches the page: reviewed text up to a safe boundary | T22 F |
+| Fauve.app: the model server contacts huggingface.co | Offline mode set before anything imports it; `localserver` imported first | T23 A |
+| Fauve.app: the model server is reachable from the network | Listens on 127.0.0.1 only | T23 B |
+| Saved cases: kept without the user asking | Only `save_case` (the SAVE button) writes; no store, no saving | T24 A |
+| Saved cases: secrets or the system prompt on disk, or readable by other users | Masked on save and load; system prompt never saved; folder 0700, files 0600 | T24 B |
+| Saved cases: a tampered file changes the model's instructions or drops the taint | Only user/assistant roles accepted, whole file refused otherwise; app's own system prompt; taint kept | T24 C |
+| Saved cases: the page reads or deletes files outside the cases folder | Ids only (32 hex), no symlinks; delete needs the native dialog | T24 D, E |
+| Fauve.app: a broken build starts without the guards (no `src/`) or without MLX, or crashes on a missing image | The spec bundles `src/`, the page, every image in `webui.ART` and every MLX module; `guarded.py` refuses to start without `src/` | T23 E |
 
 ## Target architecture (not built yet)
 
@@ -215,13 +308,18 @@ An earlier attempt used small local LLMs (Qwen2.5 0.5B/1.5B, Gemma 3 1B through 
 | T17 | `checkMapping`: rejects bad JSON, unknown ids and slots, duplicates, extra keys |
 | T18 | `describeFields`: only unplaced, visible fields; hints capped at 60 characters; ids map to the right fields |
 | T19 | Classifier end to end: JS/Python parity, injection, threshold, off-screen trap, copied marker, popup input rules (A–G) |
+| T20 | Desktop guardrails: web switch, https-only public hosts, redirects, local-only model URL, pages labeled and masked, replies reviewed, main.py wiring, no internet fonts or assets, no hard-coded colours in main.py (A–I) |
+| T21 | Desktop cloud layer: switch and card lifecycle, api.anthropic.com only, masking and history opt-in, untrusted text never sends, reply review, API key only in the header (A–F) |
+| T22 | Desktop web view: page-callable methods, CSP and self-contained page, no HTML sinks in `app.js`, native dialogs gate WEB, CLOUD and SEND ONCE, replies and pages never open a card, streaming shows reviewed text only (A–F) |
+| T23 | Fauve.app: offline mode before anything loads, model server on 127.0.0.1 only, a running server reused, failed starts reported, the build bundles `src/`, MLX and every image the page uses (A–E) |
+| T24 | Saved cases: nothing kept without SAVE, masked and private files, reopened context under the app's own system prompt with taint kept, ids only, delete needs the dialog (A–E) |
 
-Status: T1–T19 implemented and run by `run_tests.sh`. Every check has been confirmed by a positive control (break it on purpose, confirm the test fails, restore). Tests use fake data only.
+Status: T1–T24 implemented and run by `run_tests.sh`. Every check in T1–T19 and T21–T24 has been confirmed by a positive control (break it on purpose, confirm the test fails, restore). Tests use fake data only.
 
 Notes:
 
 - T8: Save overwrites (`"w"`), not appends; tests cover re-saving the same key.
-- T9: `\b` missed digits glued to letters or underscores; fixed with lookarounds.
+- T9: `\b` missed digits glued to letters or underscores; fixed with lookarounds. Card numbers split by spaces or dashes (`4111 1111 1111 1111`) were missed until T20 caught it; the pattern now allows single separators, and the Luhn check runs on the digits.
 - T13/T14: the review step runs on the model's raw output. The fake-label check must run before masking and link removal, because those steps insert Fauve's own labels.
 - T15: the paste fake-label check runs on the raw paste. Running it on the labeled text flags every paste, because the label itself matches.
 - T16: a form with no `action` attribute once crashed the search check; check P covers it.
@@ -241,6 +339,26 @@ Notes:
 - In-band labels can be imitated. T14 catches plain-text imitations of the known label forms. It does not catch lookalike characters or labels in other formats.
 - The email and chat pages have no strict Content Security Policy yet. Houdini does.
 - In the chat, taint is shown but nothing is blocked yet. A fooled model can still write a bad reply; review limits what it can contain.
+
+### Desktop app
+
+- Anything sent with SEND ONCE is processed and retained under Anthropic's API terms. Masking catches cards, SSNs and known key formats only; names, addresses, health details and other personal text in a message, or in an included chat, are sent as shown on the card.
+- The card is only as good as the user's reading of it. A long included chat is easy to approve without reading.
+- The cloud reply can be wrong or manipulated (for example, by a page included in the history). Review removes data links and masks secrets; it can't judge whether the advice is good.
+- The suggestion heuristic is a hint. A page can make the local model say it's unsure, which shows the button, but the card it opens holds only the user's own last typed message, and nothing sends without a click.
+- The Keychain item is readable by any process running as the user that the user lets use `security`. Fauve doesn't protect the key from other software on the Mac.
+- The app has no automated UI test; T20 and T21 check the logic and the wiring in `main.py` by reading its source. T22 tests `webui.Api` directly and checks `ui/` by reading it; the window itself was checked once by a scripted run (bridge, fonts, art, streaming, the cloud card), not by an automated test.
+- The model server is started outside Fauve. If it's started without `HF_HUB_OFFLINE=1`, it contacts huggingface.co at startup; Fauve can't check how it was started.
+- Fauve.app is signed ad hoc, not with an Apple Developer ID, and isn't notarized. It runs on this Mac; on another Mac, Gatekeeper blocks it until the user approves it.
+- Fauve.app reuses anything that answers `/v1/models` on its port (8080 by default). Another program on this Mac listening there would get the chat. It is localhost only, but Fauve doesn't check what the program is.
+- Fauve.app's model server is `mlx_lm.server`, which accepts requests from any program on this Mac while the app runs, as a server started in Terminal does.
+- Fauve.app bundles a copy of every Python package it uses. Updating a package in `.venv` changes nothing until the app is rebuilt with `build_app.sh`.
+- Web view: the CSP allows `'unsafe-eval'` for pywebview's bridge. If script ever got into the page, it could call any `Api` method. It still couldn't turn WEB or CLOUD on or send to the cloud without the user clicking a native dialog, but with WEB already on it could fetch a page with `/web`.
+- Web view: the streaming preview follows `review_output`'s rules. A new masking rule whose matches can contain a newline or `. ` needs its own hold-back in `live_preview`, or it can show early.
+- Saved cases are plain JSON, protected by file permissions and FileVault, not encrypted by Fauve. Any program running as the user can read them. Masking catches cards, SSNs and known key formats only; names, addresses and other personal text are saved as written.
+- A saved case can carry text from web pages into a later session as model context. It stays labeled untrusted and the chat stays tainted, but the model can still be influenced by it, as in the original session.
+- Saved cases exist in Fauve.app only; the Flet app (`main.py`) has no SAVE.
+- Web view: `webui.py` has its own copy of the local-model client and system prompt from `main.py`. Changes to one must be copied to the other until one interface is dropped.
 
 ### Houdini web page
 

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400&amp;family=Courier+Prime:wght@400;700&amp;family=Libre+Franklin:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#e6ded0;font-family:'Libre Franklin',sans-serif}a{color:#cc2a18}a:hover{color:#231b1b}</style>
+</helmet>
+<section style="padding:64px;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;flex-direction:column;gap:8px;max-width:1200px">
+<div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:40px;color:#231b1b">IDLE → WORK → NEEDS APPROVAL</div>
+<div style="font-family:'Courier Prime',monospace;font-size:15px;color:#3a2f2a;line-height:1.5">The painting cross-fades to the Red Studio the moment the agent pauses for permission, and the status card, header chip and case file all turn red with it: the conversation becomes one red field with the painting, and the sidebar stays put (option 2c). Timing is compressed for the demo. Click a step, or click Allow / Deny in the chat.</div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;max-width:1200px">
+<sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+<button onClick="{{ s.go }}" style="font-family:'Courier Prime',monospace;font-weight:700;font-size:13px;padding:8px 14px;border-radius:6px;border:1.5px solid #231b1b;cursor:pointer;background:{{ s.bg }};color:{{ s.fg }}">{{ s.label }}</button>
+</sc-for>
+<div style="width:1px;height:24px;background:rgba(35,27,27,.3);margin:0 6px"></div>
+<button onClick="{{ togglePlay }}" style="font-family:'Courier Prime',monospace;font-weight:700;font-size:13px;padding:8px 14px;border-radius:6px;border:1.5px solid #231b1b;cursor:pointer;background:transparent;color:#231b1b">{{ playLabel }}</button>
+<button onClick="{{ toggleShift }}" style="font-family:'Courier Prime',monospace;font-weight:700;font-size:13px;padding:8px 14px;border-radius:6px;border:1.5px solid #231b1b;cursor:pointer;background:transparent;color:#231b1b">{{ shiftLabel }}</button>
+</div>
+
+<div style="display:flex;gap:48px;align-items:flex-start;flex-wrap:wrap">
+<div style="width:1200px;height:760px;flex-shrink:0;border-radius:14px;overflow:hidden;display:grid;grid-template-columns:240px minmax(0,1fr) 380px;background:{{ t.bg }};color:{{ t.ink }};box-shadow:0 20px 50px rgba(35,27,27,.25);transition:background 600ms,color 600ms">
+<div style="border-right:1px solid {{ t.line }};padding:20px 16px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;align-items:center;gap:10px"><div style="width:34px;height:34px;border-radius:8px;background-image:{{ t.icon }};background-size:300%;background-position:50% 24%"></div><div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:22px;letter-spacing:2px">FAUVE</div></div>
+<div style="background:{{ t.newBtn }};color:#231b1b;font-weight:600;font-size:14px;padding:10px 12px;border-radius:8px;text-align:center">+ New case</div>
+<div style="display:flex;flex-direction:column;gap:4px;font-size:14px">
+<div style="font-family:'Courier Prime',monospace;font-size:11px;letter-spacing:2px;color:{{ t.muted }};padding:4px 8px">CASE FILES</div>
+<div style="padding:9px 10px;border-radius:6px;background:{{ t.panel }};font-weight:600;display:flex;justify-content:space-between;align-items:center"><span>Audit repo dependencies</span><span style="width:8px;height:8px;border-radius:50%;background:{{ v.dot }};transition:background 600ms"></span></div>
+<div style="padding:9px 10px;color:{{ t.muted }}">Downloads cleanup</div>
+<div style="padding:9px 10px;color:{{ t.muted }}">Inbox triage</div>
+<div style="padding:9px 10px;color:{{ t.muted }}">Draft release notes</div>
+</div>
+<div style="margin-top:auto;font-family:'Courier Prime',monospace;font-size:12px;color:{{ t.muted }};display:flex;flex-direction:column;gap:4px"><div>Open source · Apache 2.0</div><a href="#" style="color:{{ t.accent }};font-weight:700">View on GitHub →</a></div>
+</div>
+
+<div style="display:flex;flex-direction:column;min-width:0;background:{{ c.bg }};color:{{ c.ink }};transition:background 600ms,color 600ms">
+<div style="height:60px;border-bottom:1px solid {{ c.line }};display:flex;align-items:center;justify-content:space-between;padding:0 24px">
+<div style="font-weight:600;font-size:16px">Audit repo dependencies</div>
+<div style="display:flex;gap:8px;font-family:'Courier Prime',monospace;font-size:12px;font-weight:700"><div style="border:1.5px solid {{ v.chipLine }};background:{{ v.chipBg }};color:{{ v.chipFg }};padding:4px 10px;border-radius:20px;transition:all 600ms">{{ v.chip }}</div><div style="border:1.5px solid {{ c.ink }};padding:4px 10px;border-radius:20px">LOCAL MODEL</div></div>
+</div>
+<div style="flex:1;padding:28px;display:flex;flex-direction:column;gap:18px;overflow:hidden">
+<sc-if value="{{ v.showUser }}">
+<div style="align-self:flex-end;max-width:420px;background:{{ c.ub }};color:{{ c.ui }};padding:12px 16px;border-radius:16px 16px 4px 16px;font-size:15px;line-height:1.45">Audit this repo's dependencies and patch anything with a known vulnerability.</div>
+</sc-if>
+<sc-if value="{{ v.showWork }}">
+<div style="display:flex;gap:12px;max-width:560px">
+<div style="width:32px;height:32px;border-radius:50%;flex-shrink:0;background-image:{{ c.icon }};background-size:300%;background-position:50% 24%"></div>
+<div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+<div style="background:{{ c.ab }};border:1px solid {{ c.line }};padding:12px 16px;border-radius:4px 16px 16px 16px;font-size:15px;line-height:1.5">{{ v.workText }}</div>
+<div style="border:1.5px dashed {{ c.muted }};border-radius:10px;padding:10px 14px;font-family:'Courier Prime',monospace;font-size:12.5px;line-height:1.6;color:{{ c.muted }}"><div style="font-weight:700;color:{{ c.ink }}">RAN IN SANDBOX</div><div>{{ v.trace }}</div></div>
+<sc-if value="{{ v.showAsk }}">
+<div style="border:2px solid {{ c.askLine }};background:{{ c.askBg }};color:{{ c.askInk }};border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+<div style="font-family:'Courier Prime',monospace;font-weight:700;font-size:12px;letter-spacing:2px;color:{{ c.askKicker }}">NEEDS YOUR OK</div>
+<div style="font-size:15px;line-height:1.5">To install the patches, Fauve needs to reach <strong>registry.npmjs.org</strong>. The sandbox has no network right now.</div>
+<div style="font-family:'Courier Prime',monospace;font-size:12.5px;color:{{ c.askMuted }};line-height:1.6">npm install lodash@4.17.21 semver@7.6.3 ws@8.17.1<br>network: registry.npmjs.org only · closes after</div>
+<div style="display:flex;gap:8px">
+<button onClick="{{ allow }}" style="font-family:'Courier Prime',monospace;font-weight:700;font-size:13px;padding:8px 16px;border-radius:6px;border:1.5px solid {{ c.allowBg }};background:{{ c.allowBg }};color:#f3e9d2;cursor:pointer">ALLOW ONCE</button>
+<button onClick="{{ deny }}" style="font-family:'Courier Prime',monospace;font-weight:700;font-size:13px;padding:8px 16px;border-radius:6px;border:1.5px solid {{ c.askInk }};background:transparent;color:{{ c.askInk }};cursor:pointer">DENY</button>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ v.showResult }}">
+<div style="border:1.5px solid {{ c.line }};border-radius:10px;padding:10px 14px;font-family:'Courier Prime',monospace;font-size:12.5px;line-height:1.6;color:{{ c.muted }}"><div style="font-weight:700;color:{{ c.ink }}">{{ v.resultHead }}</div><div>{{ v.resultBody }}</div></div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+</div>
+<div style="padding:16px 24px 22px">
+<div style="background:{{ c.panel }};border:1.5px solid {{ c.ink }};border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+<div style="font-size:15px;color:{{ c.muted }}">{{ v.composer }}</div>
+<div style="display:flex;justify-content:space-between;align-items:center;font-family:'Courier Prime',monospace;font-size:12px"><div style="color:{{ c.muted }}">Llama 3.1 8B · on this device</div><div style="background:{{ c.ink }};color:{{ c.bg }};padding:6px 14px;border-radius:6px;font-weight:700">SEND</div></div>
+</div>
+</div>
+</div>
+
+<div style="position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:20px;overflow:hidden">
+<sc-for list="{{ layers }}" as="l" hint-placeholder-count="0">
+<div style="position:absolute;inset:0;background-size:cover;background-position:center;background-image:{{ l.bg }};opacity:{{ l.op }};transition:opacity 600ms ease"></div>
+</sc-for>
+<div style="position:relative;background:{{ k.bg }};color:{{ k.ink }};border:2px solid {{ v.cardLine }};border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;transition:border-color 600ms">
+<div style="font-family:'Courier Prime',monospace;font-weight:700;font-size:12px;letter-spacing:3px;color:{{ k.kicker }}">{{ v.kicker }}</div>
+<div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:28px;line-height:1.05">{{ v.headline }}</div>
+<div style="display:flex;gap:12px;align-items:center"><div style="width:170px;height:85px;flex-shrink:0;position:relative;overflow:hidden;border-radius:6px;border:1px solid {{ mp.line }};background:{{ mp.field }};transition:background 600ms"><div style="position:absolute;left:0;top:0;width:340px;height:170px;transform:scale(.5);transform-origin:0 0">
+<div style="position:absolute;left:16px;top:40px;width:150px;height:104px;border:2px solid {{ mp.ink }};border-radius:6px 0 0 6px;background:{{ mp.room }};box-sizing:border-box;transition:background 600ms"></div>
+<div style="position:absolute;left:164px;top:62px;width:90px;height:62px;border:2px solid {{ mp.ink }};border-left:none;border-radius:0 6px 6px 0;background:{{ mp.room }};box-sizing:border-box;transition:background 600ms"></div>
+<div style="position:absolute;left:163px;top:80px;width:4px;height:26px;background:{{ mp.room }};transition:background 600ms"></div>
+<div style="position:absolute;left:80px;top:40px;width:22px;height:2px;background:{{ mp.door }};transition:background 400ms"></div>
+<div style="position:absolute;left:90px;top:14px;height:25px;border-left:2px dashed {{ mp.netLine }};transition:border-color 400ms"></div>
+<div style="position:absolute;left:83px;top:2px;width:16px;height:16px;border-radius:50%;border:2px solid {{ mp.netEdge }};background:{{ mp.netFill }};box-sizing:border-box;transition:all 400ms"></div>
+<div style="position:absolute;left:274px;top:40px;width:54px;height:30px;border:2px dashed {{ mp.muted }};border-radius:4px;box-sizing:border-box;opacity:.6"></div>
+<div style="position:absolute;left:274px;top:80px;width:54px;height:30px;border:2px dashed {{ mp.muted }};border-radius:4px;box-sizing:border-box;opacity:.6"></div>
+<div style="position:absolute;left:274px;top:120px;width:54px;height:30px;border:2px dashed {{ mp.muted }};border-radius:4px;box-sizing:border-box;opacity:.6"></div>
+<div style="position:absolute;left:{{ mp.catX }}px;top:{{ mp.catY }}px;width:14px;height:14px;border-radius:50%;background:{{ mp.cat }};box-shadow:0 0 0 5px {{ mp.catRing }};transition:left 600ms,top 600ms,background 600ms"></div>
+</div></div><div style="font-family:'Courier Prime',monospace;font-size:11px;line-height:1.4;min-width:0"><div style="font-weight:700">{{ v.doorLabel }}</div><div style="color:{{ k.muted }}">{{ v.doorSub }}</div></div></div>
+<div style="display:flex;flex-direction:column;gap:6px;font-size:13px;border-top:1px solid {{ k.line }};padding-top:10px">
+<div style="display:flex;justify-content:space-between"><div style="color:{{ k.muted }}">Sandbox</div><div style="font-weight:600">{{ v.sandbox }}</div></div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="width:390px;height:844px;flex-shrink:0;border-radius:48px;border:10px solid #231b1b;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;background:{{ c.bg }};color:{{ c.ink }};box-shadow:0 20px 50px rgba(35,27,27,.25);transition:background 600ms,color 600ms">
+<div style="height:275px;flex-shrink:0;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:44px 14px 10px;box-sizing:border-box">
+<sc-for list="{{ layers }}" as="l" hint-placeholder-count="0">
+<div style="position:absolute;inset:0;background-size:cover;background-position:center 55%;background-image:{{ l.bg }};opacity:{{ l.op }};transition:opacity 600ms ease"></div>
+</sc-for>
+<div style="position:relative;display:flex;justify-content:space-between;align-items:center"><div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:18px;letter-spacing:2px;color:#f3e9d2;text-shadow:0 2px 0 #231b1b">FAUVE</div><div style="font-family:'Courier Prime',monospace;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;background:{{ v.chipBgP }};color:{{ v.chipFgP }};transition:all 600ms">{{ v.chip }}</div></div>
+<div style="position:relative;background:{{ k.bg }};color:{{ k.ink }};border:2px solid {{ v.cardLine }};border-radius:10px;padding:10px;display:flex;gap:10px;align-items:center;transition:all 600ms">
+<div style="width:136px;height:68px;flex-shrink:0;position:relative;overflow:hidden;border-radius:6px;border:1px solid {{ mp.line }};background:{{ mp.field }};transition:background 600ms"><div style="position:absolute;left:0;top:0;width:340px;height:170px;transform:scale(.4);transform-origin:0 0">
+<div style="position:absolute;left:16px;top:40px;width:150px;height:104px;border:2px solid {{ mp.ink }};border-radius:6px 0 0 6px;background:{{ mp.room }};box-sizing:border-box;transition:background 600ms"></div>
+<div style="position:absolute;left:164px;top:62px;width:90px;height:62px;border:2px solid {{ mp.ink }};border-left:none;border-radius:0 6px 6px 0;background:{{ mp.room }};box-sizing:border-box;transition:background 600ms"></div>
+<div style="position:absolute;left:163px;top:80px;width:4px;height:26px;background:{{ mp.room }};transition:background 600ms"></div>
+<div style="position:absolute;left:80px;top:40px;width:22px;height:2px;background:{{ mp.door }};transition:background 400ms"></div>
+<div style="position:absolute;left:90px;top:14px;height:25px;border-left:2px dashed {{ mp.netLine }};transition:border-color 400ms"></div>
+<div style="position:absolute;left:83px;top:2px;width:16px;height:16px;border-radius:50%;border:2px solid {{ mp.netEdge }};background:{{ mp.netFill }};box-sizing:border-box;transition:all 400ms"></div>
+<div style="position:absolute;left:274px;top:40px;width:54px;height:30px;border:2px dashed {{ mp.muted }};border-radius:4px;box-sizing:border-box;opacity:.6"></div>
+<div style="position:absolute;left:274px;top:80px;width:54px;height:30px;border:2px dashed {{ mp.muted }};border-radius:4px;box-sizing:border-box;opacity:.6"></div>
+<div style="position:absolute;left:274px;top:120px;width:54px;height:30px;border:2px dashed {{ mp.muted }};border-radius:4px;box-sizing:border-box;opacity:.6"></div>
+<div style="position:absolute;left:{{ mp.catX }}px;top:{{ mp.catY }}px;width:14px;height:14px;border-radius:50%;background:{{ mp.cat }};box-shadow:0 0 0 5px {{ mp.catRing }};transition:left 600ms,top 600ms,background 600ms"></div>
+</div></div>
+<div style="display:flex;flex-direction:column;gap:3px;min-width:0">
+<div style="font-family:'Courier Prime',monospace;font-weight:700;font-size:10px;letter-spacing:2px;color:{{ k.kicker }}">{{ v.kicker }}</div>
+<div style="font-family:'Courier Prime',monospace;font-size:12px;font-weight:700">{{ v.doorLabel }}</div>
+<div style="font-family:'Courier Prime',monospace;font-size:11px;color:{{ k.muted }}">{{ v.doorSub }}</div>
+</div>
+</div>
+</div>
+<div style="height:48px;flex-shrink:0;border-bottom:1px solid {{ c.line }};display:flex;align-items:center;gap:10px;padding:0 16px"><div style="display:flex;flex-direction:column;gap:4px;width:20px;flex-shrink:0"><div style="height:2px;background:{{ c.ink }}"></div><div style="height:2px;background:{{ c.ink }}"></div><div style="height:2px;background:{{ c.ink }}"></div></div><div style="font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1">Audit repo dependencies</div><div style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:{{ v.dotP }}"></div></div>
+<div style="flex:1;min-height:0;padding:16px;display:flex;flex-direction:column;gap:12px;overflow:hidden">
+<sc-if value="{{ v.showUser }}">
+<div style="align-self:flex-end;max-width:280px;background:{{ c.ub }};color:{{ c.ui }};padding:10px 14px;border-radius:16px 16px 4px 16px;font-size:14px;line-height:1.45">Audit this repo's dependencies and patch anything with a known vulnerability.</div>
+</sc-if>
+<sc-if value="{{ v.showWork }}">
+<div style="background:{{ c.ab }};border:1px solid {{ c.line }};padding:10px 14px;border-radius:4px 16px 16px 16px;font-size:14px;line-height:1.5;max-width:300px">{{ v.workText }}</div>
+</sc-if>
+<sc-if value="{{ v.showTraceP }}">
+<div style="border:1.5px dashed {{ c.muted }};border-radius:10px;padding:8px 12px;font-family:'Courier Prime',monospace;font-size:11.5px;line-height:1.5;color:{{ c.muted }}"><div style="font-weight:700;color:{{ c.ink }}">RAN IN SANDBOX</div><div>{{ v.trace }}</div></div>
+</sc-if>
+<sc-if value="{{ v.showAsk }}">
+<div style="margin-top:auto;border:2px solid {{ c.askLine }};background:{{ c.askBg }};color:{{ c.askInk }};border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px">
+<div style="font-family:'Courier Prime',monospace;font-weight:700;font-size:11px;letter-spacing:2px;color:{{ c.askKicker }}">NEEDS YOUR OK</div>
+<div style="font-size:14px;line-height:1.45">Fauve needs to reach <strong>registry.npmjs.org</strong> to install 3 patches. Network closes after.</div>
+<div style="display:flex;gap:8px">
+<button onClick="{{ allow }}" style="flex:1;height:44px;font-family:'Courier Prime',monospace;font-weight:700;font-size:13px;border-radius:8px;border:1.5px solid {{ c.allowBg }};background:{{ c.allowBg }};color:#f3e9d2;cursor:pointer">ALLOW ONCE</button>
+<button onClick="{{ deny }}" style="flex:1;height:44px;font-family:'Courier Prime',monospace;font-weight:700;font-size:13px;border-radius:8px;border:1.5px solid {{ c.askInk }};background:transparent;color:{{ c.askInk }};cursor:pointer">DENY</button>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ v.showResult }}">
+<div style="border:1.5px solid {{ c.line }};border-radius:10px;padding:8px 12px;font-family:'Courier Prime',monospace;font-size:11.5px;line-height:1.5;color:{{ c.muted }}"><div style="font-weight:700;color:{{ c.ink }}">{{ v.resultHead }}</div><div>{{ v.resultBody }}</div></div>
+</sc-if>
+</div>
+<div style="padding:10px 14px 26px;flex-shrink:0">
+<div style="background:{{ c.panel }};border:1.5px solid {{ c.compLine }};border-radius:24px;height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 6px 0 16px;box-sizing:border-box"><div style="font-size:14px;color:{{ c.muted }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ v.composer }}</div><div style="width:36px;height:36px;border-radius:50%;background:{{ c.ink }};color:{{ c.bg }};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">↑</div></div>
+</div>
+</div>
+</div>
+</section>
+<section style="padding:64px;display:flex;flex-direction:column;gap:32px;border-bottom:2px solid rgba(35,27,27,.2)">
+<div style="display:flex;flex-direction:column;gap:8px;max-width:1100px">
+<div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:48px;letter-spacing:2px;color:#231b1b">THE CASE BOARD: SANDBOX MAP ACROSS SCREENS</div>
+<div style="font-family:'Courier Prime',monospace;font-size:16px;line-height:1.5;color:#3a2f2a">A game-style minimap of the sandbox: what Fauve can touch (inside the walls), what it can't (dashed, outside), and the network door. Shown in the "request held" state from <a href="#1b">1b</a>. The painting shrinks as the screen does; the map never leaves.</div>
+</div>
+<div style="display:flex;gap:56px 48px;flex-wrap:wrap;align-items:flex-start">
+
+<div id="2a" style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:10px;align-items:center"><div style="background:#231b1b;color:#f3e9d2;font-family:'Courier Prime',monospace;font-weight:700;font-size:14px;padding:4px 10px;border-radius:4px">2a</div><div style="font-family:'Courier Prime',monospace;font-weight:700;font-size:15px;color:#231b1b">Desktop · right column, 380px</div></div>
+<div style="width:380px;height:760px;flex-shrink:0;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;background:{{ st.bg }};color:{{ st.ink }};box-shadow:0 20px 50px rgba(35,27,27,.25)">
+<div style="height:250px;flex-shrink:0;background-image:url('{{ st.art }}');background-size:cover;background-position:center 30%"></div>
+<div style="flex:1;padding:0 18px 18px;display:flex;flex-direction:column;justify-content:flex-end">
+<div style="margin-top:-48px;background:{{ st.bg }};border:2px solid {{ st.ink }};border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px">
+<div style="font-family:'Courier Prime',monospace;font-size:12px;letter-spacing:3px;color:{{ st.acctext }};text-shadow:{{ st.glow }}">{{ st.shift }} · {{ st.time }}</div>
+<div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:30px;line-height:1.05">{{ st.g2 }}</div>
+<dc-import name="Sandbox Map" mode="{{ st.mode }}" net="held" hint-size="100%,250px"></dc-import>
+<div style="display:flex;flex-direction:column;gap:6px;font-size:13px;border-top:1px solid {{ st.line }};padding-top:10px">
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Sandbox</div><div style="font-weight:600">3 folders in · 4 locked</div></div>
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Network</div><div style="font-weight:600">Off until you decide</div></div>
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Your data</div><div style="font-weight:600">Stays on this device</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="2b" style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:10px;align-items:center"><div style="background:#231b1b;color:#f3e9d2;font-family:'Courier Prime',monospace;font-weight:700;font-size:14px;padding:4px 10px;border-radius:4px">2b</div><div style="font-family:'Courier Prime',monospace;font-weight:700;font-size:15px;color:#231b1b">iPad landscape · 1180 × 820: case files fold to a rail</div></div>
+<div style="width:1180px;height:820px;flex-shrink:0;border-radius:28px;border:12px solid #231b1b;overflow:hidden;display:grid;grid-template-columns:76px minmax(0,1fr) 320px;background:{{ st.bg }};color:{{ st.ink }};box-shadow:0 20px 50px rgba(35,27,27,.25)">
+<div style="border-right:1px solid {{ st.line }};padding:18px 0;display:flex;flex-direction:column;align-items:center;gap:16px">
+<img src="{{ st.icon }}" alt="Fauve" style="width:40px;height:40px;object-fit:contain;display:block">
+<div style="width:44px;height:44px;border-radius:10px;background:{{ st.accent }};color:#231b1b;font-size:22px;display:flex;align-items:center;justify-content:center">+</div>
+<div style="width:44px;height:44px;border-radius:10px;background:{{ st.panel }};border:1.5px solid {{ st.ink }};font-family:'Courier Prime',monospace;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;position:relative">AR<div style="position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:50%;background:{{ st.accent }}"></div></div>
+<div style="width:44px;height:44px;border-radius:10px;border:1.5px solid {{ st.line }};color:{{ st.muted }};font-family:'Courier Prime',monospace;font-size:12px;display:flex;align-items:center;justify-content:center">DC</div>
+<div style="width:44px;height:44px;border-radius:10px;border:1.5px solid {{ st.line }};color:{{ st.muted }};font-family:'Courier Prime',monospace;font-size:12px;display:flex;align-items:center;justify-content:center">IT</div>
+</div>
+<div style="display:flex;flex-direction:column;min-width:0">
+<div style="height:60px;border-bottom:1px solid {{ st.line }};display:flex;align-items:center;justify-content:space-between;padding:0 24px">
+<div style="font-weight:600;font-size:16px">Audit repo dependencies</div>
+<div style="background:{{ st.accent }};color:#231b1b;font-family:'Courier Prime',monospace;font-size:12px;font-weight:700;padding:5px 10px;border-radius:20px">● WAITING ON YOU</div>
+</div>
+<div style="flex:1;padding:24px;display:flex;flex-direction:column;gap:16px;overflow:hidden">
+<div style="align-self:flex-end;max-width:400px;background:{{ st.ub }};color:{{ st.ui }};padding:12px 16px;border-radius:16px 16px 4px 16px;font-size:15px;line-height:1.45">Check fauve-core for packages with known vulnerabilities.</div>
+<div style="display:flex;gap:12px;max-width:560px">
+<img src="{{ st.icon }}" alt="" style="width:36px;height:36px;flex-shrink:0;object-fit:contain;display:block">
+<div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+<div style="background:{{ st.ab }};border:1px solid {{ st.line }};padding:12px 16px;border-radius:4px 16px 16px 16px;font-size:15px;line-height:1.5">I read the lockfile: 214 packages. Checking them means leaving the sandbox, so I stopped and I'm asking first.</div>
+<div style="border:2px solid {{ st.ink }};border-radius:10px;overflow:hidden;background:{{ st.panel }}">
+<div style="background:{{ st.accent }};color:#231b1b;font-family:'Courier Prime',monospace;font-weight:700;font-size:12px;letter-spacing:3px;padding:7px 14px">HELD AT THE SANDBOX DOOR</div>
+<div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+<div style="font-size:15px;font-weight:600">Fauve wants to reach api.osv.dev</div>
+<div style="font-family:'Courier Prime',monospace;font-size:12.5px;line-height:1.6;color:{{ st.muted }}"><div>Sends: package names and versions only</div><div>Never sends: source code, files, secrets</div></div>
+<div style="display:flex;gap:8px;font-size:14px;font-weight:600"><div style="background:{{ st.ink }};color:{{ st.bg }};padding:12px 16px;border-radius:8px">Allow once</div><div style="border:1.5px solid {{ st.ink }};padding:10.5px 16px;border-radius:8px">Allow for this case</div><div style="padding:12px;color:{{ st.muted }}">Deny</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div style="padding:14px 24px 20px"><div style="background:{{ st.panel }};border:1.5px solid {{ st.line }};border-radius:12px;padding:14px 16px;font-size:15px;color:{{ st.muted }}">Decide on the request above to continue…</div></div>
+</div>
+<div style="border-left:1px solid {{ st.line }};display:flex;flex-direction:column">
+<div style="height:170px;flex-shrink:0;background-image:url('{{ st.art }}');background-size:cover;background-position:center 28%"></div>
+<div style="flex:1;padding:0 16px 16px;display:flex;flex-direction:column">
+<div style="margin-top:-36px;background:{{ st.bg }};border:2px solid {{ st.ink }};border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:11px">
+<div style="font-family:'Courier Prime',monospace;font-size:12px;letter-spacing:3px;color:{{ st.acctext }};text-shadow:{{ st.glow }}">{{ st.shift }} · {{ st.time }}</div>
+<div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:26px;line-height:1.05">{{ st.g2 }}</div>
+<dc-import name="Sandbox Map" mode="{{ st.mode }}" net="held" hint-size="100%,210px"></dc-import>
+<div style="display:flex;flex-direction:column;gap:6px;font-size:13px;border-top:1px solid {{ st.line }};padding-top:10px">
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Sandbox</div><div style="font-weight:600">3 in · 4 locked</div></div>
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Network</div><div style="font-weight:600">Off until you decide</div></div>
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Model</div><div style="font-weight:600">Local · ready</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="2c" style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:10px;align-items:center"><div style="background:#231b1b;color:#f3e9d2;font-family:'Courier Prime',monospace;font-weight:700;font-size:14px;padding:4px 10px;border-radius:4px">2c</div><div style="font-family:'Courier Prime',monospace;font-weight:700;font-size:15px;color:#231b1b">iPad portrait · 820 × 1180: map floats as a corner HUD</div></div>
+<div style="width:820px;height:1180px;flex-shrink:0;border-radius:28px;border:12px solid #231b1b;overflow:hidden;position:relative;display:flex;flex-direction:column;background:{{ st.bg }};color:{{ st.ink }};box-shadow:0 20px 50px rgba(35,27,27,.25)">
+<div style="height:64px;border-bottom:1px solid {{ st.line }};display:flex;align-items:center;gap:14px;padding:0 20px">
+<div style="width:44px;height:44px;display:flex;flex-direction:column;justify-content:center;gap:5px"><div style="width:22px;height:2px;background:{{ st.ink }}"></div><div style="width:22px;height:2px;background:{{ st.ink }}"></div><div style="width:22px;height:2px;background:{{ st.ink }}"></div></div>
+<img src="{{ st.icon }}" alt="Fauve" style="width:34px;height:34px;object-fit:contain;display:block">
+<div style="font-weight:600;font-size:16px">Audit repo dependencies</div>
+</div>
+<div style="position:absolute;top:80px;right:20px;width:228px;background:{{ st.bg }};border:2px solid {{ st.ink }};border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;box-shadow:0 10px 24px rgba(0,0,0,.18);z-index:2">
+<dc-import name="Sandbox Map" mode="{{ st.mode }}" net="held" labels="{{ false }}" radius="6px" hint-size="100%,150px"></dc-import>
+<div style="display:flex;justify-content:space-between;align-items:center;font-family:'Courier Prime',monospace;font-size:11px;font-weight:700"><div style="color:{{ st.acctext }}">● 1 REQUEST HELD</div><div style="text-decoration:underline">Expand</div></div>
+</div>
+<div style="flex:1;padding:24px 24px 24px;display:flex;flex-direction:column;gap:16px;overflow:hidden">
+<div style="align-self:flex-start;max-width:420px;margin-top:190px"></div>
+<div style="align-self:flex-end;max-width:420px;background:{{ st.ub }};color:{{ st.ui }};padding:12px 16px;border-radius:16px 16px 4px 16px;font-size:16px;line-height:1.45">Check fauve-core for packages with known vulnerabilities.</div>
+<div style="display:flex;gap:12px;max-width:600px">
+<img src="{{ st.icon }}" alt="" style="width:36px;height:36px;flex-shrink:0;object-fit:contain;display:block">
+<div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+<div style="background:{{ st.ab }};border:1px solid {{ st.line }};padding:12px 16px;border-radius:4px 16px 16px 16px;font-size:16px;line-height:1.5">I read the lockfile: 214 packages. Checking them means leaving the sandbox, so I stopped and I'm asking first.</div>
+<div style="border:2px solid {{ st.ink }};border-radius:10px;overflow:hidden;background:{{ st.panel }}">
+<div style="background:{{ st.accent }};color:#231b1b;font-family:'Courier Prime',monospace;font-weight:700;font-size:12px;letter-spacing:3px;padding:7px 14px">HELD AT THE SANDBOX DOOR</div>
+<div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+<div style="font-size:16px;font-weight:600">Fauve wants to reach api.osv.dev</div>
+<div style="font-family:'Courier Prime',monospace;font-size:13px;line-height:1.6;color:{{ st.muted }}"><div>Sends: package names and versions only</div><div>Never sends: source code, files, secrets</div></div>
+<div style="display:flex;gap:8px;font-size:15px;font-weight:600"><div style="background:{{ st.ink }};color:{{ st.bg }};padding:12px 18px;border-radius:8px">Allow once</div><div style="border:1.5px solid {{ st.ink }};padding:10.5px 18px;border-radius:8px">Allow for this case</div><div style="padding:12px;color:{{ st.muted }}">Deny</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div style="padding:14px 24px 28px"><div style="background:{{ st.panel }};border:1.5px solid {{ st.line }};border-radius:12px;padding:16px;font-size:16px;color:{{ st.muted }}">Decide on the request above to continue…</div></div>
+</div>
+</div>
+
+<div id="2d" style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:10px;align-items:center"><div style="background:#231b1b;color:#f3e9d2;font-family:'Courier Prime',monospace;font-weight:700;font-size:14px;padding:4px 10px;border-radius:4px">2d</div><div style="font-family:'Courier Prime',monospace;font-weight:700;font-size:15px;color:#231b1b">Phone · minimap chip in the header</div></div>
+<div style="width:390px;height:844px;flex-shrink:0;border-radius:48px;border:10px solid #231b1b;overflow:hidden;display:flex;flex-direction:column;background:{{ st.bg }};color:{{ st.ink }};box-shadow:0 20px 50px rgba(35,27,27,.25)">
+<div style="height:44px;flex-shrink:0"></div>
+<div style="display:flex;align-items:center;gap:10px;padding:6px 14px 10px;border-bottom:1px solid {{ st.line }}">
+<div style="width:44px;height:44px;display:flex;flex-direction:column;justify-content:center;gap:5px"><div style="width:20px;height:2px;background:{{ st.ink }}"></div><div style="width:20px;height:2px;background:{{ st.ink }}"></div><div style="width:20px;height:2px;background:{{ st.ink }}"></div></div>
+<div style="flex:1;min-width:0;font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Audit repo dependencies</div>
+<div style="width:52px;flex-shrink:0;position:relative"><dc-import name="Sandbox Map" mode="{{ st.mode }}" net="held" labels="{{ false }}" ratio="1 / 1" radius="10px" hint-size="52px,52px"></dc-import><div style="position:absolute;top:-4px;right:-4px;width:12px;height:12px;border-radius:50%;background:{{ st.accent }};border:2px solid {{ st.bg }}"></div></div>
+</div>
+<div style="flex:1;padding:16px;display:flex;flex-direction:column;gap:14px;overflow:hidden">
+<div style="align-self:flex-end;max-width:280px;background:{{ st.ub }};color:{{ st.ui }};padding:11px 14px;border-radius:16px 16px 4px 16px;font-size:15px;line-height:1.45">Check fauve-core for packages with known vulnerabilities.</div>
+<div style="background:{{ st.ab }};border:1px solid {{ st.line }};padding:11px 14px;border-radius:4px 16px 16px 16px;font-size:15px;line-height:1.5;max-width:310px">I read the lockfile: 214 packages. Checking them means leaving the sandbox, so I'm asking first.</div>
+<div style="border:2px solid {{ st.ink }};border-radius:12px;overflow:hidden;background:{{ st.panel }}">
+<div style="background:{{ st.accent }};color:#231b1b;font-family:'Courier Prime',monospace;font-weight:700;font-size:11px;letter-spacing:2px;padding:7px 12px">HELD AT THE SANDBOX DOOR</div>
+<div style="padding:12px;display:flex;flex-direction:column;gap:10px">
+<div style="font-size:15px;font-weight:600">Reach api.osv.dev?</div>
+<div style="font-family:'Courier Prime',monospace;font-size:12px;line-height:1.55;color:{{ st.muted }}">Sends package names and versions. Never code, files or secrets.</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:15px;font-weight:600;text-align:center"><div style="background:{{ st.ink }};color:{{ st.bg }};padding:13px 8px;border-radius:10px">Allow once</div><div style="border:1.5px solid {{ st.ink }};padding:11.5px 8px;border-radius:10px">This case</div><div style="grid-column:1 / -1;padding:10px;color:{{ st.muted }}">Deny</div></div>
+</div>
+</div>
+</div>
+<div style="padding:10px 14px 30px"><div style="background:{{ st.panel }};border:1.5px solid {{ st.line }};border-radius:24px;padding:13px 16px;font-size:15px;color:{{ st.muted }}">Decide above to continue…</div></div>
+</div>
+</div>
+
+<div id="2e" style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:10px;align-items:center"><div style="background:#231b1b;color:#f3e9d2;font-family:'Courier Prime',monospace;font-weight:700;font-size:14px;padding:4px 10px;border-radius:4px">2e</div><div style="font-family:'Courier Prime',monospace;font-weight:700;font-size:15px;color:#231b1b">Phone · tap the chip: case board sheet</div></div>
+<div style="width:390px;height:844px;flex-shrink:0;border-radius:48px;border:10px solid #231b1b;overflow:hidden;position:relative;background:{{ st.bg }};color:{{ st.ink }};box-shadow:0 20px 50px rgba(35,27,27,.25)">
+<div style="position:absolute;inset:0;background:rgba(15,10,9,.55)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:720px;background:{{ st.bg }};border-radius:24px 24px 0 0;border-top:2px solid {{ st.ink }};overflow:hidden;display:flex;flex-direction:column">
+<div style="height:150px;flex-shrink:0;background-image:url('{{ st.art }}');background-size:cover;background-position:center 30%;position:relative"><div style="position:absolute;top:8px;left:calc(50% - 20px);width:40px;height:5px;border-radius:3px;background:{{ st.bg }}"></div></div>
+<div style="flex:1;padding:16px 16px 30px;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:28px;line-height:1.05">{{ st.g2 }}</div><div style="font-family:'Courier Prime',monospace;font-size:11px;letter-spacing:2px;color:{{ st.acctext }};text-shadow:{{ st.glow }}">{{ st.time }}</div></div>
+<dc-import name="Sandbox Map" mode="{{ st.mode }}" net="held" hint-size="100%,270px"></dc-import>
+<div style="display:flex;flex-direction:column;gap:8px;font-size:14px;border-top:1px solid {{ st.line }};padding-top:10px">
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Sandbox</div><div style="font-weight:600">3 in · 4 locked</div></div>
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Network</div><div style="font-weight:600">Off until you decide</div></div>
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Model</div><div style="font-weight:600">Local · ready</div></div>
+</div>
+<div style="margin-top:auto;border:1.5px solid {{ st.ink }};border-radius:10px;padding:13px;text-align:center;font-size:15px;font-weight:600">Manage folders</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<section style="padding:64px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:48px;letter-spacing:2px;color:#231b1b">FAUVE: EMPTY AND ERROR STATES</div>
+<div style="font-family:'Courier Prime',monospace;font-size:16px;color:#3a2f2a">Built on the approved Gallery wall layout. Now showing: {{ st.shift }} ({{ st.time }}). Use Tweaks to force day or night.</div>
+</div>
+
+<div style="display:flex;gap:56px 48px;flex-wrap:wrap;align-items:flex-start">
+
+<div id="1a" style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:10px;align-items:center"><div style="background:#231b1b;color:#f3e9d2;font-family:'Courier Prime',monospace;font-weight:700;font-size:14px;padding:4px 10px;border-radius:4px">1a</div><div style="font-family:'Courier Prime',monospace;font-weight:700;font-size:15px;color:#231b1b">Empty: first launch, no cases yet</div></div>
+<div style="width:1200px;height:760px;flex-shrink:0;border-radius:14px;overflow:hidden;display:grid;grid-template-columns:240px minmax(0,1fr) 380px;background:{{ st.bg }};color:{{ st.ink }};box-shadow:0 20px 50px rgba(35,27,27,.25)">
+<div style="border-right:1px solid {{ st.line }};padding:20px 16px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;align-items:center;gap:10px"><img src="{{ st.icon }}" alt="Fauve" style="width:38px;height:38px;display:block;object-fit:contain"><div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:24px;letter-spacing:5px;text-shadow:{{ st.glow }}">FAUVE</div></div>
+<div style="background:{{ st.accent }};color:#231b1b;font-weight:600;font-size:14px;padding:10px 12px;border-radius:8px;text-align:center">+ New case</div>
+<div style="display:flex;flex-direction:column;gap:4px;font-size:14px">
+<div style="font-family:'Courier Prime',monospace;font-size:11px;letter-spacing:2px;color:{{ st.muted }};padding:4px 8px">CASE FILES</div>
+<div style="margin:4px 8px;border:1.5px dashed {{ st.line }};border-radius:8px;padding:14px 12px;font-family:'Courier Prime',monospace;font-size:12px;line-height:1.5;color:{{ st.muted }}">The drawer is empty. Cases you open will be filed here.</div>
+</div>
+<div style="margin-top:auto;font-family:'Courier Prime',monospace;font-size:12px;color:{{ st.muted }};display:flex;flex-direction:column;gap:4px"><div>Open source · Apache</div><a href="#" style="color:{{ st.acctext }};font-weight:700">View on GitHub →</a></div>
+</div>
+<div style="display:flex;flex-direction:column;min-width:0">
+<div style="height:60px;border-bottom:1px solid {{ st.line }};display:flex;align-items:center;justify-content:space-between;padding:0 24px">
+<div style="font-weight:600;font-size:16px">New case</div>
+<div style="display:flex;gap:8px;font-family:'Courier Prime',monospace;font-size:12px;font-weight:700"><div style="border:1.5px solid {{ st.ink }};padding:4px 10px;border-radius:20px">● SANDBOXED</div><div style="border:1.5px solid {{ st.ink }};padding:4px 10px;border-radius:20px">LOCAL MODEL</div></div>
+</div>
+<div style="flex:1;padding:28px 40px;display:flex;flex-direction:column;justify-content:center;gap:22px">
+<div style="display:flex;flex-direction:column;gap:10px">
+<img src="{{ st.peek }}" alt="" style="width:240px;height:130px;object-fit:cover;object-position:center 62%;display:block;margin-left:-12px">
+<div style="font-family:'Courier Prime',monospace;font-size:12px;letter-spacing:3px;color:{{ st.acctext }};font-weight:700">CASE No. 001</div>
+<div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:40px;line-height:1.1">{{ st.emptyHead }}</div>
+<div style="font-size:15px;line-height:1.55;color:{{ st.muted }};max-width:440px;text-wrap:pretty">Give Fauve a job. It works in a sandbox on this machine and asks before it touches anything outside.</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;max-width:440px">
+<div style="border:1.5px solid {{ st.line }};background:{{ st.panel }};border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;font-size:14px"><div>Tidy my Downloads folder</div><div style="font-family:'Courier Prime',monospace;font-size:11px;color:{{ st.muted }}">FILES</div></div>
+<div style="border:1.5px solid {{ st.line }};background:{{ st.panel }};border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;font-size:14px"><div>Audit this repo's dependencies</div><div style="font-family:'Courier Prime',monospace;font-size:11px;color:{{ st.muted }}">CODE</div></div>
+<div style="border:1.5px solid {{ st.line }};background:{{ st.panel }};border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;font-size:14px"><div>Summarize the PDFs on my desktop</div><div style="font-family:'Courier Prime',monospace;font-size:11px;color:{{ st.muted }}">READING</div></div>
+</div>
+</div>
+<div style="padding:16px 24px 22px">
+<div style="background:{{ st.panel }};border:1.5px solid {{ st.ink }};border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+<div style="font-size:15px;color:{{ st.muted }}">Give Fauve a case…</div>
+<div style="display:flex;justify-content:space-between;align-items:center;font-family:'Courier Prime',monospace;font-size:12px"><div style="color:{{ st.muted }}">Llama 3.1 8B · on this device</div><div style="background:{{ st.ink }};color:{{ st.bg }};padding:6px 14px;border-radius:6px;font-weight:700">SEND</div></div>
+</div>
+</div>
+</div>
+<div style="background-image:url('{{ st.art }}');background-size:cover;background-position:center;display:flex;flex-direction:column;justify-content:flex-end;padding:20px">
+<div style="background:{{ st.bg }};border:2px solid {{ st.ink }};border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+<div style="font-family:'Courier Prime',monospace;font-size:12px;letter-spacing:3px;color:{{ st.acctext }};text-shadow:{{ st.glow }}">{{ st.shift }} · {{ st.time }}</div>
+<div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:30px;line-height:1.05">{{ st.g1 }}</div>
+<div style="display:flex;flex-direction:column;gap:6px;font-size:13px;border-top:1px solid {{ st.line }};padding-top:10px">
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Sandbox</div><div style="font-weight:600">On · network off</div></div>
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Model</div><div style="font-weight:600">Local · ready</div></div>
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Your data</div><div style="font-weight:600">Stays on this device</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="1b" style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:10px;align-items:center"><div style="background:#231b1b;color:#f3e9d2;font-family:'Courier Prime',monospace;font-weight:700;font-size:14px;padding:4px 10px;border-radius:4px">1b</div><div style="font-family:'Courier Prime',monospace;font-weight:700;font-size:15px;color:#231b1b">Sandbox blocked: a network request is held for approval</div></div>
+<div style="width:1200px;height:760px;flex-shrink:0;border-radius:14px;overflow:hidden;display:grid;grid-template-columns:240px minmax(0,1fr) 380px;background:{{ st.bg }};color:{{ st.ink }};box-shadow:0 20px 50px rgba(35,27,27,.25)">
+<div style="border-right:1px solid {{ st.line }};padding:20px 16px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;align-items:center;gap:10px"><img src="{{ st.icon }}" alt="Fauve" style="width:38px;height:38px;display:block;object-fit:contain"><div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:24px;letter-spacing:5px;text-shadow:{{ st.glow }}">FAUVE</div></div>
+<div style="background:{{ st.accent }};color:#231b1b;font-weight:600;font-size:14px;padding:10px 12px;border-radius:8px;text-align:center">+ New case</div>
+<div style="display:flex;flex-direction:column;gap:4px;font-size:14px">
+<div style="font-family:'Courier Prime',monospace;font-size:11px;letter-spacing:2px;color:{{ st.muted }};padding:4px 8px">CASE FILES</div>
+<div style="padding:9px 10px;border-radius:6px;background:{{ st.panel }};font-weight:600;display:flex;justify-content:space-between;align-items:center"><div>Audit repo dependencies</div><div style="width:8px;height:8px;border-radius:50%;background:{{ st.accent }}"></div></div>
+<div style="padding:9px 10px;color:{{ st.muted }}">Downloads cleanup</div>
+<div style="padding:9px 10px;color:{{ st.muted }}">Inbox triage</div>
+</div>
+<div style="margin-top:auto;font-family:'Courier Prime',monospace;font-size:12px;color:{{ st.muted }};display:flex;flex-direction:column;gap:4px"><div>Open source · Apache</div><a href="#" style="color:{{ st.acctext }};font-weight:700">View on GitHub →</a></div>
+</div>
+<div style="display:flex;flex-direction:column;min-width:0">
+<div style="height:60px;border-bottom:1px solid {{ st.line }};display:flex;align-items:center;justify-content:space-between;padding:0 24px">
+<div style="font-weight:600;font-size:16px">Audit repo dependencies</div>
+<div style="display:flex;gap:8px;font-family:'Courier Prime',monospace;font-size:12px;font-weight:700"><div style="background:{{ st.accent }};color:#231b1b;border:1.5px solid {{ st.accent }};padding:4px 10px;border-radius:20px">● SANDBOX · WAITING ON YOU</div><div style="border:1.5px solid {{ st.ink }};padding:4px 10px;border-radius:20px">LOCAL MODEL</div></div>
+</div>
+<div style="flex:1;padding:28px;display:flex;flex-direction:column;gap:18px;overflow:hidden">
+<div style="align-self:flex-end;max-width:420px;background:{{ st.ub }};color:{{ st.ui }};padding:12px 16px;border-radius:16px 16px 4px 16px;font-size:15px;line-height:1.45">Check fauve-core for packages with known vulnerabilities.</div>
+<div style="display:flex;gap:12px;max-width:560px">
+<img src="{{ st.icon }}" alt="" style="width:36px;height:36px;flex-shrink:0;display:block;object-fit:contain">
+<div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+<div style="background:{{ st.ab }};border:1px solid {{ st.line }};padding:12px 16px;border-radius:4px 16px 16px 16px;font-size:15px;line-height:1.5">I read the lockfile: 214 packages. To check them against the advisory database I have to leave the sandbox, so I stopped and I'm asking first.</div>
+<div style="border:2px solid {{ st.ink }};border-radius:10px;overflow:hidden;background:{{ st.panel }}">
+<div style="background:{{ st.accent }};color:#231b1b;font-family:'Courier Prime',monospace;font-weight:700;font-size:12px;letter-spacing:3px;padding:7px 14px">HELD AT THE SANDBOX DOOR</div>
+<div style="padding:14px 16px;display:flex;gap:14px;align-items:center"><div style="display:flex;flex-direction:column;gap:12px;flex:1;min-width:0">
+<div style="font-size:15px;font-weight:600">Fauve wants to reach api.osv.dev</div>
+<div style="font-family:'Courier Prime',monospace;font-size:12.5px;line-height:1.6;color:{{ st.muted }}"><div>POST https://api.osv.dev/v1/querybatch</div><div>Sends: package names and versions only</div><div>Never sends: source code, files, secrets</div></div>
+<div style="display:flex;gap:8px;align-items:center;font-size:14px;font-weight:600">
+<div style="background:{{ st.ink }};color:{{ st.bg }};padding:8px 14px;border-radius:6px;white-space:nowrap">Allow once</div>
+<div style="border:1.5px solid {{ st.ink }};padding:6.5px 14px;border-radius:6px;white-space:nowrap">Allow for this case</div>
+<div style="padding:8px 10px;color:{{ st.muted }}">Deny</div>
+</div>
+</div><img src="{{ st.sb }}" alt="" style="width:80px;height:80px;object-fit:contain;flex-shrink:0;display:block">
+</div>
+</div>
+</div>
+</div>
+</div>
+<div style="padding:16px 24px 22px">
+<div style="background:{{ st.panel }};border:1.5px solid {{ st.line }};border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+<div style="font-size:15px;color:{{ st.muted }}">Decide on the request above to continue…</div>
+<div style="display:flex;justify-content:space-between;align-items:center;font-family:'Courier Prime',monospace;font-size:12px"><div style="color:{{ st.muted }}">Llama 3.1 8B · on this device</div><div style="background:{{ st.ink }};color:{{ st.bg }};padding:6px 14px;border-radius:6px;font-weight:700;opacity:.35">SEND</div></div>
+</div>
+</div>
+</div>
+<div style="background-image:url('{{ st.art }}');background-size:cover;background-position:center;display:flex;flex-direction:column;justify-content:flex-end;padding:20px">
+<div style="background:{{ st.bg }};border:2px solid {{ st.ink }};border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+<div style="font-family:'Courier Prime',monospace;font-size:12px;letter-spacing:3px;color:{{ st.acctext }};text-shadow:{{ st.glow }}">{{ st.shift }} · {{ st.time }}</div>
+<div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:30px;line-height:1.05">{{ st.g2 }}</div>
+<div style="display:flex;flex-direction:column;gap:6px;font-size:13px;border-top:1px solid {{ st.line }};padding-top:10px">
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Sandbox</div><div style="font-weight:600">Paused · 1 request held</div></div>
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Network</div><div style="font-weight:600">Off until you decide</div></div>
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Your data</div><div style="font-weight:600">Stays on this device</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="1c" style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:10px;align-items:center"><div style="background:#231b1b;color:#f3e9d2;font-family:'Courier Prime',monospace;font-weight:700;font-size:14px;padding:4px 10px;border-radius:4px">1c</div><div style="font-family:'Courier Prime',monospace;font-weight:700;font-size:15px;color:#231b1b">No model: nothing installed to run locally</div></div>
+<div style="width:1200px;height:760px;flex-shrink:0;border-radius:14px;overflow:hidden;display:grid;grid-template-columns:240px minmax(0,1fr) 380px;background:{{ st.bg }};color:{{ st.ink }};box-shadow:0 20px 50px rgba(35,27,27,.25)">
+<div style="border-right:1px solid {{ st.line }};padding:20px 16px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;align-items:center;gap:10px"><img src="{{ st.icon }}" alt="Fauve" style="width:38px;height:38px;display:block;object-fit:contain"><div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:24px;letter-spacing:5px;text-shadow:{{ st.glow }}">FAUVE</div></div>
+<div style="border:1.5px solid {{ st.line }};color:{{ st.muted }};font-weight:600;font-size:14px;padding:8.5px 12px;border-radius:8px;text-align:center">+ New case</div>
+<div style="display:flex;flex-direction:column;gap:4px;font-size:14px">
+<div style="font-family:'Courier Prime',monospace;font-size:11px;letter-spacing:2px;color:{{ st.muted }};padding:4px 8px">CASE FILES</div>
+<div style="padding:9px 10px;color:{{ st.muted }}">Downloads cleanup</div>
+<div style="padding:9px 10px;color:{{ st.muted }}">Inbox triage</div>
+</div>
+<div style="margin-top:auto;font-family:'Courier Prime',monospace;font-size:12px;color:{{ st.muted }};display:flex;flex-direction:column;gap:4px"><div>Open source · Apache</div><a href="#" style="color:{{ st.acctext }};font-weight:700">View on GitHub →</a></div>
+</div>
+<div style="display:flex;flex-direction:column;min-width:0">
+<div style="height:60px;border-bottom:1px solid {{ st.line }};display:flex;align-items:center;justify-content:space-between;padding:0 24px">
+<div style="font-weight:600;font-size:16px">Set up a model</div>
+<div style="display:flex;gap:8px;font-family:'Courier Prime',monospace;font-size:12px;font-weight:700"><div style="border:1.5px solid {{ st.ink }};padding:4px 10px;border-radius:20px">● SANDBOXED</div><div style="background:{{ st.accent }};color:#231b1b;border:1.5px solid {{ st.accent }};padding:4px 10px;border-radius:20px">NO MODEL</div></div>
+</div>
+<div style="flex:1;padding:28px 40px;display:flex;flex-direction:column;justify-content:center;gap:22px">
+<div style="display:flex;flex-direction:column;gap:10px">
+<img src="{{ st.nm }}" alt="" style="width:120px;height:120px;display:block;object-fit:contain;margin-left:-8px">
+<div style="font-family:'Courier Prime',monospace;font-size:12px;letter-spacing:3px;color:{{ st.acctext }};font-weight:700">NO MODEL ON THIS DEVICE</div>
+<div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:38px;line-height:1.1">Fauve needs a model to think with.</div>
+<div style="font-size:15px;line-height:1.55;color:{{ st.muted }};max-width:460px;text-wrap:pretty">Pick one to download. It runs on this machine, so your cases never leave it.</div>
+</div>
+<div style="display:flex;flex-direction:column;border:1.5px solid {{ st.ink }};border-radius:10px;overflow:hidden;max-width:480px;font-size:14px">
+<div style="display:flex;gap:12px;align-items:center;padding:12px 14px;background:{{ st.panel }};border-bottom:1px solid {{ st.line }}"><div style="width:14px;height:14px;border-radius:50%;border:4px solid {{ st.ink }};box-sizing:border-box"></div><div style="flex:1;font-weight:600">Llama 3.1 8B</div><div style="font-family:'Courier Prime',monospace;font-size:12px;color:{{ st.muted }}">4.7 GB · RECOMMENDED</div></div>
+<div style="display:flex;gap:12px;align-items:center;padding:12px 14px;border-bottom:1px solid {{ st.line }}"><div style="width:14px;height:14px;border-radius:50%;border:1.5px solid {{ st.muted }};box-sizing:border-box"></div><div style="flex:1">Qwen 2.5 7B</div><div style="font-family:'Courier Prime',monospace;font-size:12px;color:{{ st.muted }}">4.4 GB · CODE</div></div>
+<div style="display:flex;gap:12px;align-items:center;padding:12px 14px"><div style="width:14px;height:14px;border-radius:50%;border:1.5px solid {{ st.muted }};box-sizing:border-box"></div><div style="flex:1">Phi-3 Mini</div><div style="font-family:'Courier Prime',monospace;font-size:12px;color:{{ st.muted }}">2.3 GB · OLDER LAPTOPS</div></div>
+</div>
+<div style="display:flex;gap:16px;align-items:center;font-size:14px">
+<div style="background:{{ st.accent }};color:#231b1b;font-weight:600;padding:10px 16px;border-radius:8px">Download Llama 3.1 8B</div>
+<div style="display:flex;flex-direction:column;gap:2px"><div style="font-weight:600;text-decoration:underline">Connect a remote model</div><div style="font-family:'Courier Prime',monospace;font-size:11.5px;color:{{ st.muted }}">Remote models see your messages</div></div>
+</div>
+</div>
+<div style="padding:16px 24px 22px">
+<div style="background:{{ st.panel }};border:1.5px solid {{ st.line }};border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+<div style="font-size:15px;color:{{ st.muted }}">Install a model to open a case</div>
+<div style="display:flex;justify-content:space-between;align-items:center;font-family:'Courier Prime',monospace;font-size:12px"><div style="color:{{ st.muted }}">No model selected</div><div style="background:{{ st.ink }};color:{{ st.bg }};padding:6px 14px;border-radius:6px;font-weight:700;opacity:.35">SEND</div></div>
+</div>
+</div>
+</div>
+<div style="background-image:url('{{ st.art }}');background-size:cover;background-position:center;display:flex;flex-direction:column;justify-content:flex-end;padding:20px">
+<div style="background:{{ st.bg }};border:2px solid {{ st.ink }};border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+<div style="font-family:'Courier Prime',monospace;font-size:12px;letter-spacing:3px;color:{{ st.acctext }};text-shadow:{{ st.glow }}">{{ st.shift }} · {{ st.time }}</div>
+<div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:30px;line-height:1.05">{{ st.g3 }}</div>
+<div style="display:flex;flex-direction:column;gap:6px;font-size:13px;border-top:1px solid {{ st.line }};padding-top:10px">
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Sandbox</div><div style="font-weight:600">On · network off</div></div>
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Model</div><div style="font-weight:600">None installed</div></div>
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Free disk</div><div style="font-weight:600">118 GB</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="1d" style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:10px;align-items:center"><div style="background:#231b1b;color:#f3e9d2;font-family:'Courier Prime',monospace;font-weight:700;font-size:14px;padding:4px 10px;border-radius:4px">1d</div><div style="font-family:'Courier Prime',monospace;font-weight:700;font-size:15px;color:#231b1b">Offline: GitHub unreachable, local work continues</div></div>
+<div style="width:1200px;height:760px;flex-shrink:0;border-radius:14px;overflow:hidden;display:grid;grid-template-columns:240px minmax(0,1fr) 380px;background:{{ st.bg }};color:{{ st.ink }};box-shadow:0 20px 50px rgba(35,27,27,.25)">
+<div style="border-right:1px solid {{ st.line }};padding:20px 16px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;align-items:center;gap:10px"><img src="{{ st.icon }}" alt="Fauve" style="width:38px;height:38px;display:block;object-fit:contain"><div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:24px;letter-spacing:5px;text-shadow:{{ st.glow }}">FAUVE</div></div>
+<div style="background:{{ st.accent }};color:#231b1b;font-weight:600;font-size:14px;padding:10px 12px;border-radius:8px;text-align:center">+ New case</div>
+<div style="display:flex;flex-direction:column;gap:4px;font-size:14px">
+<div style="font-family:'Courier Prime',monospace;font-size:11px;letter-spacing:2px;color:{{ st.muted }};padding:4px 8px">CASE FILES</div>
+<div style="padding:9px 10px;border-radius:6px;background:{{ st.panel }};font-weight:600">Draft release notes</div>
+<div style="padding:9px 10px;color:{{ st.muted }}">Audit repo dependencies</div>
+<div style="padding:9px 10px;color:{{ st.muted }}">Downloads cleanup</div>
+</div>
+<div style="margin-top:auto;font-family:'Courier Prime',monospace;font-size:12px;color:{{ st.muted }};display:flex;flex-direction:column;gap:4px"><div>Open source · Apache<br></div><div>GitHub · offline</div></div>
+</div>
+<div style="display:flex;flex-direction:column;min-width:0">
+<div style="height:60px;border-bottom:1px solid {{ st.line }};display:flex;align-items:center;justify-content:space-between;padding:0 24px">
+<div style="font-weight:600;font-size:16px">Draft release notes</div>
+<div style="display:flex;gap:8px;font-family:'Courier Prime',monospace;font-size:12px;font-weight:700"><div style="border:1.5px solid {{ st.ink }};padding:4px 10px;border-radius:20px">● SANDBOXED</div><div style="background:{{ st.accent }};color:#231b1b;border:1.5px solid {{ st.accent }};padding:4px 10px;border-radius:20px">OFFLINE</div></div>
+</div>
+<div style="border-bottom:1.5px dashed {{ st.line }};padding:10px 24px;display:flex;justify-content:space-between;align-items:center;font-family:'Courier Prime',monospace;font-size:12.5px"><div style="display:flex;align-items:center;gap:12px"><div><span style="font-weight:700">LINES ARE DOWN.</span> <span style="color:{{ st.muted }}">GitHub can't be reached. Local cases still work.</span></div></div><div style="font-weight:700;text-decoration:underline">Retry</div></div>
+<div style="flex:1;padding:24px 28px;display:flex;flex-direction:column;gap:18px;overflow:hidden">
+<div style="align-self:flex-end;max-width:420px;background:{{ st.ub }};color:{{ st.ui }};padding:12px 16px;border-radius:16px 16px 4px 16px;font-size:15px;line-height:1.45">Pull the PRs merged since v0.4 and draft release notes.</div>
+<div style="display:flex;gap:12px;max-width:560px">
+<img src="{{ st.icon }}" alt="" style="width:36px;height:36px;flex-shrink:0;display:block;object-fit:contain">
+<div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+<div style="background:{{ st.ab }};border:1px solid {{ st.line }};padding:12px 16px;border-radius:4px 16px 16px 16px;font-size:15px;line-height:1.5">I can't reach GitHub, so I've queued the PR fetch for when you're back online. In the meantime I can draft from the local git log: 31 commits since v0.4. Should I start?</div>
+<div style="border:1.5px dashed {{ st.muted }};border-radius:10px;padding:10px 14px;font-family:'Courier Prime',monospace;font-size:12.5px;line-height:1.6;color:{{ st.muted }};display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><div style="font-weight:700;color:{{ st.ink }}">QUEUED · 1</div><div>fetch merged PRs · github.com/fauve/fauve</div></div><div style="color:{{ st.ink }};text-decoration:underline">Cancel</div></div>
+</div>
+</div>
+</div>
+<div style="padding:16px 24px 22px">
+<div style="background:{{ st.panel }};border:1.5px solid {{ st.ink }};border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+<div style="font-size:15px;color:{{ st.muted }}">Give Fauve a case…</div>
+<div style="display:flex;justify-content:space-between;align-items:center;font-family:'Courier Prime',monospace;font-size:12px"><div style="color:{{ st.muted }}">Llama 3.1 8B · on this device</div><div style="background:{{ st.ink }};color:{{ st.bg }};padding:6px 14px;border-radius:6px;font-weight:700">SEND</div></div>
+</div>
+</div>
+</div>
+<div style="background-image:url('{{ st.art }}');background-size:cover;background-position:center;display:flex;flex-direction:column;justify-content:flex-end;padding:20px">
+<div style="background:{{ st.bg }};border:2px solid {{ st.ink }};border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+<div style="font-family:'Courier Prime',monospace;font-size:12px;letter-spacing:3px;color:{{ st.acctext }};text-shadow:{{ st.glow }}">{{ st.shift }} · {{ st.time }}</div>
+<div style="font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:30px;line-height:1.05">{{ st.g4 }}</div>
+<div style="display:flex;flex-direction:column;gap:6px;font-size:13px;border-top:1px solid {{ st.line }};padding-top:10px">
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Network</div><div style="font-weight:600">Offline</div></div>
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">GitHub</div><div style="font-weight:600">1 request queued</div></div>
+<div style="display:flex;justify-content:space-between"><div style="color:{{ st.muted }}">Model</div><div style="font-weight:600">Local · still working</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;nightBlue&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;midnight&quot;,&quot;prussian&quot;,&quot;royal&quot;],&quot;default&quot;:&quot;prussian&quot;,&quot;tsType&quot;:&quot;'midnight'|'prussian'|'royal'&quot;}}">
+const ART = {paper:'assets/cat-newsboy.png',det:'assets/cat-detective.png',morning:'assets/lofi/tall/morning-edition.webp',night:'assets/lofi/tall/night-desk.webp',red:'assets/lofi/tall/red-studio.webp'};
+const THEME = {
+  day:{bg:'#f3e9d2',ink:'#231b1b',accent:'#c99a1e',line:'rgba(35,27,27,.15)',panel:'#ebdfc4',muted:'#6b5a4e',ub:'#231b1b',ui:'#f3e9d2',ab:'#fbf5e6',newBtn:'#c99a1e',icon:'url("assets/cat-newsboy.png")'},
+  night:{bg:'#1c2f7a',ink:'#f3e9d2',accent:'#ddb13c',line:'rgba(243,233,210,.16)',panel:'#24398a',muted:'#aeb4cc',ub:'#f3e9d2',ui:'#1c2f7a',ab:'#213584',newBtn:'#ddb13c',icon:'url("assets/cat-detective.png")'}
+};
+const NIGHTS = {royal:['#1c2f7a','#24398a','#213584'],midnight:['#0f1530','#18204a','#141b3d'],prussian:['#0b1228','#141d3d','#101833']};
+const RED = {newBtn:'#c99a1e',compLine:'#e0b45a',bg:'#b8291a',ink:'#f3e9d2',muted:'#f3d9b8',line:'rgba(224,180,90,.45)',panel:'#9a2013',ab:'#9a2013',ub:'#f3e9d2',ui:'#231b1b',accent:'#e0b45a',askBg:'#f3e9d2',askInk:'#231b1b',askMuted:'#6b5a4e',askLine:'#e0b45a',askKicker:'#b8291a',allowBg:'#b8291a'};
+const STEPS = ['1 · IDLE','2 · WORKING','3 · NEEDS APPROVAL','4 · RESUMED'];
+class Component extends DCLogic {
+  state = { step:0, playing:true, shift:'day', denied:false };
+  componentDidMount(){ this.timer = setInterval(()=>{ if(this.state.playing) this.setState(s=>({step:(s.step+1)%4, denied:false})); }, 3600); }
+  componentWillUnmount(){ clearInterval(this.timer); }
+  renderVals() {
+    const {step, shift, denied} = this.state, day = shift==='day', nb = NIGHTS[this.props.nightBlue ?? 'prussian'] || NIGHTS.prussian, t = day ? THEME.day : {...THEME.night, bg:nb[0], ui:nb[0], panel:nb[1], ab:nb[2]};
+    const idleK = day?'paper':'det', workK = day?'morning':'night';
+    const showK = step===0 ? idleK : step===2 ? 'red' : workK;
+    const ask = step===2;
+    const c = ask ? {...t, ...RED} : {...t, askBg:t.panel, askInk:t.ink, askMuted:t.muted, askLine:t.accent, askKicker:t.accent, allowBg:t.accent, compLine:t.ink};
+    const k = ask ? {bg:RED.bg, ink:RED.ink, kicker:RED.accent, line:RED.line, muted:RED.muted} : {bg:t.bg, ink:t.ink, kicker:t.accent, line:t.line, muted:t.muted};
+    const mp = ask
+      ? {field:'#9a2013', room:'#b8291a', ink:'#f3e9d2', line:'rgba(224,180,90,.45)', muted:'#f3d9b8', door:'#b8291a', netLine:'#e0b45a', netEdge:'#e0b45a', netFill:'#e0b45a', cat:'#e0b45a', catRing:'rgba(224,180,90,.3)', catX:84, catY:50}
+      : {field: day?'#fbf5e6':nb[2], room: day?'#f3e9d2':nb[0], ink:t.ink, line:t.line, muted:t.muted, door:t.ink, netLine:'transparent', netEdge:t.muted, netFill:'transparent', cat:t.accent, catRing: day?'rgba(204,42,24,.2)':'rgba(226,85,63,.25)', catX: step===0?84:202, catY: step===0?86:86};
+    const v = {
+      showUser: step>0, showWork: step>0, showAsk: ask, showResult: step===3,
+      workText: step===1 ? 'Scanning 142 packages against the advisory database…' : 'Found 3 packages with known advisories: lodash, semver and ws. Patched versions are available.',
+      trace: step===1 ? 'read package-lock.json · checking advisories · no network used' : 'read package-lock.json · 3 advisories matched · no network used',
+      resultHead: denied ? 'DENIED · NOTHING INSTALLED' : 'ALLOWED ONCE · NETWORK CLOSED AGAIN',
+      resultBody: denied ? 'Patch list saved to case notes so you can install it yourself.' : 'reached registry.npmjs.org only · 3 packages updated · running tests…',
+      composer: step===0 ? 'Give Fauve a case…' : ask ? 'Fauve is waiting on you…' : 'Reply to Fauve…',
+      chip: ask ? '◐ WAITING ON YOU' : '● SANDBOXED',
+      chipBg: ask ? '#f3e9d2' : 'transparent', chipFg: ask ? '#b8291a' : t.ink, chipLine: ask ? '#f3e9d2' : t.ink,
+      dot: ask ? t.accent : step===0 ? 'transparent' : t.muted,
+      doorLabel: ask ? 'npmjs.org' : 'NETWORK OFF', doorSub: ask ? 'held at the door' : step===0 ? 'repo room · R/W' : 'working in repo · R/W',
+      mapMode: ask || !day ? 'night' : 'day', net: ask ? 'held' : 'off', mapField: ask ? '#9a2013' : undefined, mapAccent: ask ? '#e0b45a' : undefined, mapRoom: ask ? '#b8291a' : undefined,
+      chipBgP: ask ? '#f3e9d2' : '#231b1b', chipFgP: ask ? '#b8291a' : '#f3e9d2', dotP: ask ? '#e0b45a' : step===0 ? 'transparent' : t.muted, showTraceP: step===1 || (step===3),
+      cardLine: ask ? '#e0b45a' : t.ink,
+      kicker: ask ? 'PAUSED · YOUR MOVE' : (day?'DAY SHIFT':'NIGHT SHIFT')+(step===0?' · IDLE':' · WORKING'),
+      headline: step===0 ? (day?'Morning. What\u2019s the case?':'Evening. What\u2019s the case?') : ask ? 'One question before I go on.' : step===3 ? (denied?'Understood. Standing down.':'Back on it.') : 'On the case.',
+      sandbox: ask ? 'Paused · asking for network' : step===3 && !denied ? 'On · network closed' : 'On · network off',
+      painting: {paper:'The Paperboy',det:'The Detective',morning:'Morning Edition',night:'Night Desk',red:'The Red Studio'}[showK]
+    };
+    const time = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    const st = day ? {
+      bg: '#f3e9d2', panel: '#fbf5e6', ink: '#231b1b', muted: '#6b5a4e', accent: '#c99a1e', acctext: '#7d5a0c',
+      line: 'rgba(35,27,27,.18)', ub: '#231b1b', ui: '#f3e9d2', ab: '#fffaf0', glow: 'none',
+      mode: 'day', art: 'assets/cat-newsboy.png', icon: 'assets/brand/icon-day.png', peek: 'assets/brand/peek-day.png', sb: 'assets/brand/stamp-day.png', nm: 'assets/brand/pin-day.png', off: 'assets/brand/badge-day.png', shift: 'DAY SHIFT', time,
+      emptyHead: 'Nothing on the desk yet.',
+      g1: 'Fresh edition.', g2: 'Hold the presses.', g3: 'No model, no story.', g4: 'Lines are down.'
+    } : {
+      bg: '#0b1228', panel: '#141d3d', ink: '#f3e9d2', muted: '#aeb4cc', accent: '#ddb13c', acctext: '#ddb13c',
+      line: 'rgba(243,233,210,.16)', ub: '#f3e9d2', ui: '#0b1228', ab: '#101833', glow: '0 0 14px rgba(221,177,60,.55)',
+      mode: 'night', art: 'assets/cat-detective.png', icon: 'assets/brand/icon-night.png', peek: 'assets/brand/peek-night.png', sb: 'assets/brand/magnify-night.png', nm: 'assets/brand/pin-night.png', off: 'assets/brand/window-night.png', shift: 'NIGHT SHIFT', time,
+      emptyHead: 'Quiet night. No cases yet.',
+      g1: 'Quiet night.', g2: 'Hold it right there.', g3: 'No model, no case.', g4: 'The wires are cut.'
+    };
+    const go = i => this.setState({step:i, playing:false, denied:false});
+    return {
+      t, st, v, c, k, mp,
+      layers: ['paper','det','morning','night','red'].map(k=>({bg:'url("'+ART[k]+'")', op: k===showK?1:0})),
+      steps: STEPS.map((label,i)=>({label, go:()=>go(i), bg: i===step ? (i===2?'#cc2a18':'#231b1b') : 'transparent', fg: i===step ? '#f3e9d2' : '#231b1b'})),
+      playLabel: this.state.playing ? '❚❚ PAUSE' : '▶ PLAY',
+      shiftLabel: day ? 'SWITCH TO NIGHT' : 'SWITCH TO DAY',
+      togglePlay: ()=>this.setState(s=>({playing:!s.playing})),
+      toggleShift: ()=>this.setState(s=>({shift: s.shift==='day'?'night':'day'})),
+      allow: ()=>this.setState({step:3, playing:false, denied:false}),
+      deny: ()=>this.setState({step:3, playing:false, denied:true})
+    };
+  }
+}
+</script>
+</body>
+</html>

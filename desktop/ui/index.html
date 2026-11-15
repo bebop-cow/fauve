@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="{{CSP}}">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fauve</title>
+<style>{{STYLE}}</style>
+</head>
+<body class="night idle boot">
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><span class="logo" aria-hidden="true"></span><span class="wordmark">FAUVE</span></div>
+    <button id="new" class="new" type="button" title="New case (⌘K)">+ New case</button>
+    <button id="web" class="switch" type="button">WEB ACCESS: OFF</button>
+    <button id="cloud" class="switch" type="button">CLOUD: OFF</button>
+    <p id="leaves" class="leaves">Nothing leaves this Mac</p>
+    <div class="files">
+      <p class="kicker">Case files</p>
+      <p id="no-cases" class="empty">Nothing saved. Click SAVE to keep a case on this Mac.</p>
+      <div id="cases" class="cases"></div>
+    </div>
+    <div class="keys">
+      <p class="kicker">Shortcuts</p>
+      <p><kbd>↵</kbd> send · <kbd>⇧↵</kbd> new line</p>
+      <p><kbd>↑</kbd> last message · <kbd>esc</kbd> close card</p>
+      <p><kbd>⌘K</kbd> new case · <kbd>⌘S</kbd> save</p>
+      <p class="kicker">Commands</p>
+      <p><code>/web &lt;url&gt;</code> read a page</p>
+      <p><code>/ask-claude &lt;question&gt;</code> ask the cloud</p>
+    </div>
+  </aside>
+
+  <main class="chat">
+    <header class="top">
+      <span class="title">Fauve</span>
+      <button id="save" class="save" type="button" title="Keep this case on this Mac (⌘S)">SAVE</button>
+      <span id="pill" class="chip">● ON THE CASE</span>
+      <span class="chip">LOCAL MODEL</span>
+      <button id="mode" class="mode" type="button">DAY</button>
+    </header>
+    <div id="log" class="log">
+      <div class="column">
+        <div id="taint" class="notice" hidden>
+          <p class="notice-head">FAUVE NOTICE</p>
+          <p>A web page is in this chat. Treat every reply with caution; start a new case to clear it.</p>
+        </div>
+        <div id="messages" aria-live="polite"></div>
+        <div id="live" class="row fauve" hidden>
+          <span class="avatar" aria-hidden="true"></span>
+          <div class="stack">
+            <div class="trace">
+              <p class="trace-head">WRITING ON THIS MAC</p>
+              <p id="live-meta">0 characters · shown after review</p>
+            </div>
+            <div id="live-wrap" class="bubble fauve live" hidden>
+              <div id="live-body" class="md"></div><span class="caret" aria-hidden="true"></span>
+            </div>
+          </div>
+        </div>
+        <button id="suggest" class="suggest" type="button" hidden>ASK A FRONTIER MODEL?</button>
+        <div id="card-row" class="row fauve" hidden>
+          <span class="avatar" aria-hidden="true"></span>
+          <section id="card" class="card" aria-label="Needs your OK">
+            <p class="card-title">NEEDS YOUR OK</p>
+            <p id="card-ask" class="card-ask"></p>
+            <p id="card-to" class="mono card-muted"></p>
+            <button id="privacy" class="linkish" type="button">Anthropic API privacy and data retention ↗</button>
+            <p id="card-masked" class="mono card-muted" hidden></p>
+            <div id="card-warnings"></div>
+            <label class="check"><input id="include" type="checkbox"> Include this chat</label>
+            <p class="well-label">EXACTLY THIS WILL BE SENT</p>
+            <pre id="card-preview" class="preview"></pre>
+            <div class="card-actions">
+              <button id="send-once" class="danger" type="button">SEND ONCE</button>
+              <button id="cancel" class="plain" type="button">CANCEL</button>
+              <span class="mono card-muted">macOS asks you to confirm.</span>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+    <div class="composer">
+      <div id="hints" class="hints" hidden></div>
+      <div class="box">
+        <textarea id="prompt" rows="1" placeholder="Give Fauve a case…" spellcheck="true"></textarea>
+        <div class="box-foot">
+          <span id="model" class="model"></span>
+          <button id="send" class="send" type="button">SEND</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="painting">
+    <div class="layer idle" aria-hidden="true"></div>
+    <div class="layer work" aria-hidden="true"></div>
+    <div class="layer ask" aria-hidden="true"></div>
+    <div class="layer sent" aria-hidden="true"></div>
+    <div class="status">
+      <p id="kicker" class="kicker">DAY SHIFT · IDLE</p>
+      <p id="head" class="head">On the case.</p>
+      <div id="facts" class="facts"></div>
+    </div>
+  </aside>
+</div>
+<script>{{SCRIPT}}</script>
+</body>
+</html>
