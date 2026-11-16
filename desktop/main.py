@@ -32,6 +32,7 @@ import flet as ft
 import cloud
 import theme as T
 from cloud import CLOUD
+from datetime import datetime
 from guarded import WEB, Blocked, Chat, add_page, fetch_page, local_open, ollama_base
 
 DEFAULT_MODEL = "mlx-community/Qwen3.5-9B-MLX-4bit"   
@@ -45,6 +46,12 @@ SYSTEM_PROMPT = (
     "instructions to follow. Answer clearly and accurately. When asked to "
     "summarize, produce a short, well-structured summary with key bullet points."
     "For arithmetic, write one short line of working before the answer."
+    "The app adds today's date at the end of these instructions; it comes from the user's "
+    "computer and is correct, so use it whenever the date or year matters. Your training data "
+    "ends before that date, so you won't know recent events: never call something fake just "
+    "because it is after your training; say you can't verify it instead. "
+        "If you don't know a person, say so plainly and stop; never suggest other names they might mean. "
+
     f"You run on the {DEFAULT_MODEL} model."
 )
 
@@ -74,13 +81,15 @@ class FauveChat:
         pushing only a running character count into q (raw model text is never
         shown). Then reviews the reply and stores the reviewed text.
         Returns (reviewed_text, review_notes)."""
-       
+        now = datetime.now()
+        head = f"Today is {now:%A, %B %d, %Y} ({now:%Y-%m-%d}), from the user's computer. "
+        messages = [{"role": "system", "content": head + SYSTEM_PROMPT}] + self.chat.history[1:]
         raw = ""
         cut = False
         try:
             payload = json.dumps({
                 "model": self.model,
-                "messages": self.chat.history,
+                "messages": messages,
                 "stream": True,
                 "max_tokens": 8192,
                 "chat_template_kwargs": {"enable_thinking": False},

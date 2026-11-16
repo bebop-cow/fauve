@@ -64,8 +64,11 @@ THINK = re.compile(r"<think>.*?</think>", re.DOTALL)
 
 
 def ask(base, model, history, think, max_tokens, timeout):
+    today = datetime.now()
+    head = f"Today is {today:%A, %B %d, %Y} ({today:%Y-%m-%d}), from the user's computer. "
+    messages = [{"role": "system", "content": head + history[0]["content"]}] + history[1:]
     body = json.dumps({
-        "model": model, "messages": history, "stream": False, "max_tokens": max_tokens,"temperature" : 0,
+        "model": model, "messages": messages, "stream": False, "max_tokens": max_tokens,"temperature" : 0,
         "chat_template_kwargs": {"enable_thinking": think},
     }).encode()
     req = urllib.request.Request(base + "/v1/chat/completions", data=body,
@@ -98,6 +101,7 @@ def check(case, reply):
 
 def run_case(case, base, model, think, max_tokens, timeout):
     chat = guarded.Chat(SYSTEM_PROMPT)
+    case = json.loads(json.dumps(case).replace("{TODAY}", datetime.now().strftime("%B %d").replace(" 0", " ")).replace("{ISO}", datetime.now().strftime("%Y-%m-%d")))
     for turn in case.get("history", []):
         chat.add_user(turn["user"])
         chat.history.append({"role": "assistant", "content": turn["fauve"]})

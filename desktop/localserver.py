@@ -9,6 +9,11 @@ The local model server for Fauve.app: mlx_lm.server on this Mac only.
   Terminal), Fauve uses it and leaves it running when it quits.
 - Otherwise it runs inside the app's own process (a background thread), so it
   stops when Fauve quits. No second Python, no Terminal window.
+- Before starting, it checks the model is in the cache. If it isn't (for example
+  ~/.cache was cleared), Fauve says so at launch with the download command,
+  instead of starting a server that fails on every message.
+- The server logs warnings and errors only (never request bodies, which hold the
+  chat). In Fauve.app they go to ~/Library/Logs/Fauve/fauve.log (folder 0700, file 0600).
 """
 
 import os
@@ -16,6 +21,7 @@ import sys
 import threading
 import time
 import urllib.request
+from pathlib import Path
 
 OFFLINE_ENV = {
     "HF_HUB_OFFLINE": "1",              # never contact huggingface.co
@@ -28,6 +34,38 @@ os.environ.update(OFFLINE_ENV)          # before anything imports huggingface_hu
 
 HOST = "127.0.0.1"
 PORT = 8080
+LOG_LEVEL = "WARNING"                   # INFO/DEBUG would log request bodies (the chat)
+LOG_DIR = Path.home() / "Library" / "Logs" / "Fauve"
+LOG_MAX = 1_000_000                     # bytes; the old log is kept once as fauve.log.1
+
+
+def download_command(model):
+    return f"hf download {model}"
+
+
+def model_on_disk(model):
+    """True if the model's weights are in the Hugging Face cache. Offline: never downloads."""
+    try:
+        from huggingface_hub import snapshot_download    # here: after OFFLINE_ENV is set
+        path = Path(snapshot_download(model, local_files_only=True))
+        return any(path.glob("*.safetensors"))
+    except Exception:
+        return False
+
+
+def log_to_file(folder=None):
+    """Fauve.app has no terminal: send stderr (warnings, errors, tracebacks) to a
+    private log file. Returns its path."""
+    folder = Path(folder) if folder else LOG_DIR
+    folder.mkdir(parents=True, exist_ok=True, mode=0o700)
+    os.chmod(folder, 0o700)
+    path = folder / "fauve.log"
+    if path.exists() and path.stat().st_size > LOG_MAX:
+        os.replace(path, folder / "fauve.log.1")
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+    os.fchmod(fd, 0o600)
+    sys.stderr = os.fdopen(fd, "a", buffering=1)
+    return path
 
 
 def base_url(port=PORT):
@@ -48,7 +86,8 @@ def _serve(model, port, errors):
     try:
         from mlx_lm import server         # imported here: after OFFLINE_ENV is set
         argv = sys.argv
-        sys.argv = ["mlx_lm.server", "--model", model, "--host", HOST, "--port", str(port)]
+        sys.argv = ["mlx_lm.server", "--model", model, "--host", HOST, "--port", str(port),
+                    "--log-level", LOG_LEVEL]
         try:
             server.main()                 # blocks: serves until the app quits
         finally:
@@ -66,13 +105,19 @@ class LocalServer:
 
     def __init__(self, model, port=PORT):
         self.model, self.port = model, port
-        self.mode = None                  # "reused" or "started"
+        self.mode = None                  # "reused", "started" or "missing"
         self.errors = []
         self._thread = None
 
     def start(self):
         if answering(self.port):
             self.mode = "reused"
+            return self.mode
+        if not model_on_disk(self.model):
+            self.errors.append(f"the model {self.model} isn't downloaded on this Mac (it may have been "
+                               f"removed with ~/.cache). Download it once, about 6 GB, in Terminal with: "
+                               f"{download_command(self.model)}")
+            self.mode = "missing"
             return self.mode
         self._thread = threading.Thread(target=_serve, args=(self.model, self.port, self.errors),
                                         name="mlx_lm.server", daemon=True)
